@@ -1,33 +1,25 @@
-// src/components/Header.jsx
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import { FaSearch } from 'react-icons/fa';
+import { ThemeContext } from '../Context/ThemeContext'; // Adjust the path as needed
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(
-    document.documentElement.classList.contains('dark')
-  );
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Theme toggle function
-  const toggleTheme = () => {
-    setIsDarkMode((prev) => !prev);
-  };
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext); // Use context
+  const navigate = useNavigate(); // Hook for navigation
 
   // Authentication toggle function
   const toggleAuth = () => {
-    setIsLoggedIn((prev) => !prev);
-  };
-
-  // Sync dark mode with <html> class
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
+    if (isLoggedIn) {
+      // Logout logic
+      setIsLoggedIn(false);
+      alert('You have been logged out.');
     } else {
-      document.documentElement.classList.remove('dark');
+      // Redirect to the Auth Page
+      navigate('/auth');
     }
-  }, [isDarkMode]);
+  };
 
   // Handle search
   const handleSearch = () => {
@@ -35,7 +27,7 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full fixed top-0 left-0 flex items-center justify-between p-6 shadow-lg bg-white dark:bg-gray-800 z-50">
+    <header className="w-full flex items-center justify-between p-6 shadow-lg bg-white dark:bg-gray-800 z-50">
       {/* Logo */}
       <div className="text-3xl font-bold">
         <Link to="/" className="text-gray-800 dark:text-white hover:text-blue-500 transition duration-300">
