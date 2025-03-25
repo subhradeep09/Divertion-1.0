@@ -7,6 +7,8 @@ const Home = () => {
   return (
     <div className="w-full min-h-screen">
       <HeroSection />
+      <PreviousEvents />
+      <UpcomingEvents />
     </div>
   );
 };
