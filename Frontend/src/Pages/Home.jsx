@@ -7,8 +7,13 @@ const Home = () => {
   return (
     <div className="w-full min-h-screen">
       <HeroSection />
+<<<<<<< HEAD
       <UpcomingEvents />
       <PreviousEvents />
+=======
+      <PreviousEvents />
+      <UpcomingEvents />
+>>>>>>> kousik
     </div>
   );
 };
