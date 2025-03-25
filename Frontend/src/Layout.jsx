@@ -10,7 +10,7 @@ const Layout = () => {
     <ThemeProvider>
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 p-6 w-full max-w-4xl mx-auto">
+        <main className="flex-1 p-0 w-full">
           <Outlet />
         </main>
         <Footer />

@@ -23,7 +23,7 @@ const router = createBrowserRouter(
       <Route path='' element={<Home />} />
       <Route path='about' element={<About />} />
       <Route path='calendar' element={<Calendar />} />
-      <Route path='events' element={<Events />} />
+      <Route path='/events' element={<Events />} />
       <Route path='organizers' element={<Organizers />} />
       <Route path='contact' element={<Contact />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy/>} />

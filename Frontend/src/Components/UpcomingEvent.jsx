@@ -1,78 +1,107 @@
 import React from "react";
 
-const events = [
+const upcomingEvents = [
   {
     id: 1,
-    name: "AI Summit 2025",
-    date: "April 15, 2025",
-    time: "9:00 AM - 5:00 PM",
-    place: "Tech Convention Center, San Francisco",
-    price: "$299",
-    image: "https://source.unsplash.com/400x250/?conference,technology",
-    availability: "Limited spots available"
+    name: "AI & Machine Learning Conference",
+    date: "April 10, 2025",
+    place: "San Francisco, CA",
+    attendees: "700+ Expected",
+    image: "https://images.pexels.com/photos/3183153/pexels-photo-3183153.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     id: 2,
-    name: "Blockchain Revolution Conference",
-    date: "April 28, 2025",
-    time: "10:00 AM - 6:00 PM",
-    place: "Innovation Hub, New York",
-    price: "$349",
-    image: "https://source.unsplash.com/400x250/?blockchain,conference",
-    availability: "Early bird pricing ends soon"
+    name: "Next-Gen Cloud Symposium",
+    date: "May 22, 2025",
+    place: "Seattle, WA",
+    attendees: "850+ Expected",
+    image: "https://images.pexels.com/photos/270404/pexels-photo-270404.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     id: 3,
-    name: "Cloud Computing Workshop",
-    date: "May 5, 2025",
-    time: "2:00 PM - 6:00 PM",
-    place: "Virtual Event",
-    price: "$149",
-    image: "https://source.unsplash.com/400x250/?cloud,technology",
-    availability: "Virtual seats available"
+    name: "Blockchain Future Expo",
+    date: "June 15, 2025",
+    place: "Austin, TX",
+    attendees: "600+ Expected",
+    image: "https://images.pexels.com/photos/5989927/pexels-photo-5989927.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     id: 4,
-    name: "Cyber Security Summit",
-    date: "May 20, 2025",
-    time: "10:00 AM - 4:00 PM",
-    place: "London, UK",
-    price: "$249",
-    image: "https://source.unsplash.com/400x250/?cybersecurity,conference",
-    availability: "Register before May 10"
+    name: "Cybersecurity World Summit",
+    date: "July 8, 2025",
+    place: "New York, NY",
+    attendees: "900+ Expected",
+    image: "https://images.pexels.com/photos/7319063/pexels-photo-7319063.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     id: 5,
-    name: "AI & ML Bootcamp",
-    date: "June 10, 2025",
-    time: "8:00 AM - 3:00 PM",
-    place: "Berlin, Germany",
-    price: "$199",
-    image: "https://source.unsplash.com/400x250/?AI,workshop",
-    availability: "Few spots left!"
+    name: "IoT & Smart Devices Forum",
+    date: "August 12, 2025",
+    place: "Los Angeles, CA",
+    attendees: "500+ Expected",
+    image: "https://images.pexels.com/photos/1181317/pexels-photo-1181317.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 6,
+    name: "Digital Health Tech Summit",
+    date: "September 20, 2025",
+    place: "Boston, MA",
+    attendees: "750+ Expected",
+    image: "https://images.pexels.com/photos/7089024/pexels-photo-7089024.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 7,
+    name: "5G & Future Connectivity Expo",
+    date: "October 5, 2025",
+    place: "Chicago, IL",
+    attendees: "800+ Expected",
+    image: "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=600",
+  },
+  {
+    id: 8,
+    name: "Green Tech Innovation Forum",
+    date: "November 18, 2025",
+    place: "Denver, CO",
+    attendees: "650+ Expected",
+    image: "https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg?auto=compress&cs=tinysrgb&w=600",
   }
 ];
 
 const UpcomingEvents = () => {
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-900 text-white rounded-3xl shadow-2xl">
-      <h2 className="text-3xl font-extrabold text-center mb-4">🚀 Upcoming Events 🚀</h2>
-      <p className="text-center text-gray-400 mb-6">Join us for these exciting upcoming technology conferences and workshops.</p>
-      <div className="flex flex-col space-y-6">
-        {events.map((event) => (
-          <div key={event.id} className="bg-gray-800 rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row md:items-center hover:scale-105 transition-transform">
-            <img src={event.image} alt={event.name} className="w-full md:w-1/3 h-48 object-cover" />
-            <div className="p-5 flex-1">
-              <h3 className="text-xl font-bold text-white">{event.name}</h3>
-              <p className="text-gray-400 mt-1">📅 {event.date} | ⏰ {event.time}</p>
-              <p className="text-gray-400">📍 {event.place}</p>
-              <p className="text-blue-400 font-medium mt-2">{event.availability}</p>
-              <div className="flex justify-between items-center mt-4">
-                <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm">{event.price}</span>
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
-                  Register Now
-                </button>
-              </div>
+    <div className="max-w-8xl mx-auto px-4 py-12">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-6">
+          Upcoming Events
+        </h2>
+        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-4xl mx-auto">
+          Stay updated with our upcoming events where technology meets innovation.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {upcomingEvents.map((event) => (
+          <div
+            key={event.id}
+            className="relative bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-transform transform hover:scale-105 overflow-hidden border border-gray-200 dark:border-gray-700"
+          >
+            <img
+              src={event.image}
+              alt={event.name}
+              className="w-full h-32 object-cover"
+            />
+            <div className="p-4 space-y-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {event.name}
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">📅 {event.date}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">📍 {event.place}</p>
+              <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                {event.attendees}
+              </p>
+              <button className="px-4 py-2 rounded-full bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 transition">
+                View Details
+              </button>
             </div>
           </div>
         ))}
