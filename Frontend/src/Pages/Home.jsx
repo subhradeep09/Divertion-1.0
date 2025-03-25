@@ -5,11 +5,8 @@ import HeroSection from "../Components/Herosection";
 
 const Home = () => {
   return (
-    <div>
+    <div className="w-full min-h-screen">
       <HeroSection />
-      <UpcomingEvents />
-      <div className="my-12"></div>
-      <PreviousEvents />
     </div>
   );
 };
