@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const events = [
   {
@@ -54,6 +55,7 @@ const events = [
 ];
 
 const UpcomingEvents = () => {
+  const navigate = useNavigate();
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-900 text-white rounded-3xl shadow-2xl">
       <h2 className="text-3xl font-extrabold text-center mb-4">🚀 Upcoming Events 🚀</h2>
@@ -69,7 +71,7 @@ const UpcomingEvents = () => {
               <p className="text-blue-400 font-medium mt-2">{event.availability}</p>
               <div className="flex justify-between items-center mt-4">
                 <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm">{event.price}</span>
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+                <button onClick={() => navigate("/register")}className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
                   Register Now
                 </button>
               </div>
