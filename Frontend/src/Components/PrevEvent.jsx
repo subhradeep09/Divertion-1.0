@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 const previousEvents = [
   {
     id: 1,
@@ -68,6 +68,7 @@ const previousEvents = [
 ];
 
 const PreviousEvents = () => {
+  const navigate = useNavigate();
   return (
     <div className="max-w-8xl mx-auto px-4 py-12">
       <div className="text-center mb-12">
@@ -99,7 +100,7 @@ const PreviousEvents = () => {
               <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
                 {event.attendees}
               </p>
-              <button className="px-4 py-2 rounded-full bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 transition">
+              <button onClick={() => navigate("/event", { state: event })} className="px-4 py-2 rounded-full bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 transition">
                 View Details
               </button>
             </div>

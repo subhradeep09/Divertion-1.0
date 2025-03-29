@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
 
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const { isDarkMode } = useContext(ThemeContext);
   const [userType, setUserType] = useState("Participant");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
