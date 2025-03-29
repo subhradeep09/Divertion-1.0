@@ -44,7 +44,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Navigation Links */}
+          {/* Navigation links */}
           <div>
             <h4 className="text-xl font-semibold mb-6">Explore</h4>
             <ul className="space-y-4">
