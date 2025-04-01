@@ -100,7 +100,7 @@ const PreviousEvents = () => {
               <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
                 {event.attendees}
               </p>
-              <button onClick={() => navigate("/event", { state: event })} className="px-4 py-2 rounded-full bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 transition">
+              <button onClick={()=>navigate ("/EventDetails", { state: event })} className="px-4 py-2 rounded-full bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 transition">
                 View Details
               </button>
             </div>

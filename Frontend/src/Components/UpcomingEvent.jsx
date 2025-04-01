@@ -102,7 +102,7 @@ const UpcomingEvents = () => {
               </p>
               <div className="bottom-0 flex justify-between mt-4 gap-2">
               <button className="w-1/2 px-2 py-2 rounded-full bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 transition">
-                View Details
+              View Details
               </button>
               <button onClick={() => navigate("/Register", { state: event })} className="w-1/2 px-2 py-2 rounded-full bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-800 transition">
               Register Now

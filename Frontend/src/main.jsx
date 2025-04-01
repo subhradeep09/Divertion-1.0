@@ -17,6 +17,7 @@ import PrivacyPolicy from './Pages/PrivacyPolicy.jsx';
 import AuthPage from './Components/AuthPage.jsx';
 import LoginPage from "./Components/LoginPage.jsx";
 import Register from './Components/register.jsx';
+import EventDetails from './Components/EventDetails.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -34,6 +35,7 @@ const router = createBrowserRouter(
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/EventDetails" element={<EventDetails />} />
     </Route>
   )
 )

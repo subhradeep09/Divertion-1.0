@@ -4,10 +4,13 @@ import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import * as echarts from "echarts";
+import { Link } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 
 const EventDetails = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedImage, setSelectedImage] = useState(null);
+  const { state } = useLocation(); 
 
   useEffect(() => {
     const chart = echarts.init(document.getElementById("attendeeChart"));
@@ -128,7 +131,6 @@ const EventDetails = () => {
     },
   ];
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-lg">
@@ -139,7 +141,7 @@ const EventDetails = () => {
             className="flex items-center space-x-2 text-gray-800 hover:text-blue-600"
           >
             <i className="fas fa-arrow-left"></i>
-            <span>Back to Events</span>
+            <Link to="/events"> Back to Events</Link>
           </a>
           <div className="flex items-center space-x-4">
             <button className="!rounded-button px-4 py-2 text-gray-600 hover:text-blue-600 cursor-pointer whitespace-nowrap">
@@ -284,22 +286,29 @@ const EventDetails = () => {
 
         {activeTab === "gallery" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {gallery.map((image, index) => (
-              <div
-                key={index}
-                className="cursor-pointer rounded-lg overflow-hidden shadow-lg"
-                onClick={() => setSelectedImage(image.url)}
-              >
-                <img
-                  src={image.url}
-                  alt={image.caption}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4 bg-white">
-                  <p className="text-gray-600">{image.caption}</p>
-                </div>
-              </div>
-            ))}
+            <Swiper
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 3000 }}
+              className="mySwiper"
+            >
+              {gallery.map((image, index) => (
+                <SwiperSlide key={index}>
+                  <div
+                    className="cursor-pointer rounded-lg overflow-hidden shadow-lg"
+                    onClick={() => setSelectedImage(image.url)}
+                  >
+                    <img
+                      src={image.url}
+                      alt={image.caption}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4 bg-white">
+                      <p className="text-gray-600">{image.caption}</p>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         )}
 
