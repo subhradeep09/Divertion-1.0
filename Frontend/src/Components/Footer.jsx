@@ -98,7 +98,7 @@ const Footer = () => {
         {/* Bottom Section */}
         <div className="flex justify-between items-center text-lg mt-8">
           <p className="text-gray-800 dark:text-white">
-            © 2024 EventHub. All rights reserved.
+            © 2025 EventHub. All rights reserved.
           </p>
           <div className="flex items-center gap-8">
             {/* Scroll to Top Button */}

@@ -18,6 +18,7 @@ import AuthPage from './Components/AuthPage.jsx';
 import LoginPage from "./Components/LoginPage.jsx";
 import Register from './Components/register.jsx';
 import EventDetails from './Components/EventDetails.jsx';
+import UpcomingEventDetails from './Components/UpcomingEventDetails.jsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,6 +37,7 @@ const router = createBrowserRouter(
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<Register />} />
       <Route path="/EventDetails" element={<EventDetails />} />
+      <Route path="/UpcomingEventDetails" element={<UpcomingEventDetails />} />
     </Route>
   )
 )
