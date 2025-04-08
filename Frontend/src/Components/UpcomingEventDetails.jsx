@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -7,8 +7,6 @@ const UpcomingEventDetails = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedFAQ, setExpandedFAQ] = useState(null); // Track which FAQ is expanded
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const agenda = [
     {
@@ -67,29 +65,6 @@ const UpcomingEventDetails = () => {
   const toggleFAQ = (index) => {
     setExpandedFAQ(expandedFAQ === index ? null : index); // Toggle the expanded state
   };
-
-  // Simulate data fetching
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Simulate an API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to load event details.");
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <div className="text-center">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
-  }
 
   // Countdown Timer
   const eventDate = new Date(event.date);
