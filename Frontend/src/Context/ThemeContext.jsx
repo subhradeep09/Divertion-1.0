@@ -6,7 +6,6 @@ export const ThemeContext = createContext();
 // Create the provider component
 export const ThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Retrieve theme from localStorage or default to false
     return localStorage.getItem('isDarkMode') === 'true';
   });
 

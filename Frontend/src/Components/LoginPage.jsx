@@ -67,7 +67,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className={`flex justify-center items-center min-h-screen p-6 `}>
+    <div className={`flex justify-center items-center min-h-screen p-6 ${isDarkMode ? 'bg-[#0F172A] text-white' : 'bg-gray-100 text-black'}`}>
       <div className={`flex w-full max-w-4xl ${isDarkMode ? 'bg-[#111827]' : 'bg-white'} p-8 rounded-xl shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} space-x-8`}>
         {/* Left Section: Video & Welcome Text */}
         <div className={`w-1/2 flex flex-col items-center text-center ${isDarkMode ? 'text-white' : 'text-black'} p-6`}>

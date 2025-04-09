@@ -3,10 +3,9 @@ import { ThemeContext } from '../Context/ThemeContext';
 import { useLocation } from 'react-router-dom';
 
 function Register() {
-  const { state } = useLocation(); 
+  const { state } = useLocation();
   const { isDarkMode } = useContext(ThemeContext);
 
-  // State for error messages
   const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
@@ -37,7 +36,6 @@ function Register() {
       terms: ''
     };
 
-    // Validate fields
     const form = event.target;
     if (!form.firstName.value) newErrors.firstName = 'First Name is required';
     if (!form.lastName.value) newErrors.lastName = 'Last Name is required';
@@ -47,7 +45,6 @@ function Register() {
     if (!form.gender.value) newErrors.gender = 'Gender is required';
     if (!form.terms.checked) newErrors.terms = 'You must agree to the terms';
 
-    // Set errors if any
     if (Object.values(newErrors).some(error => error)) {
       setErrors(newErrors);
       return;
@@ -66,15 +63,19 @@ function Register() {
     }
   };
 
+  const inputStyle = `mt-1 block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none sm:text-sm`;
+  const darkInput = `bg-gray-800 text-white border border-gray-600 focus:ring-blue-500 focus:border-blue-500`;
+  const lightInput = `bg-white text-black border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500`;
+
   return (
-    <div className={`flex items-center justify-center min-h-screen `}>
-      <div className={`p-8 rounded-lg border shadow-lg w-full max-w-4xl ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
+    <div className={`flex items-center justify-center min-h-screen ${isDarkMode ? 'bg-[#0F172A]' : 'bg-gray-100'}`}>
+      <div className={`p-8 rounded-xl shadow-xl w-full max-w-4xl ${isDarkMode ? 'bg-gray-900 border border-gray-700' : 'bg-white border border-gray-300'}`}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Event Details */}
           <div className="flex flex-col items-center justify-center">
             <h2 className={`text-2xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-black'}`}>{state.name}</h2>
             <img
-              alt="Event photo"
+              alt="Event"
               className="rounded-lg shadow-md"
               height="100"
               src={state.image}
@@ -91,71 +92,37 @@ function Register() {
               </a>
             </div>
           </div>
+
           {/* Registration Form */}
           <div>
             <h2 className={`text-2xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-black'}`}>Registration</h2>
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {[
+                  { label: 'First Name', name: 'firstName', type: 'text', placeholder: 'Enter your first name' },
+                  { label: 'Last Name', name: 'lastName', type: 'text', placeholder: 'Enter your last name' },
+                  { label: 'Email', name: 'email', type: 'email', placeholder: 'Enter your email' },
+                  { label: 'Phone Number', name: 'phone', type: 'text', placeholder: 'Enter your number' },
+                  { label: 'DOB', name: 'dob', type: 'date' }
+                ].map(({ label, name, type, placeholder }) => (
+                  <div key={name}>
+                    <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{label}</label>
+                    <input
+                      name={name}
+                      type={type}
+                      placeholder={placeholder}
+                      onChange={() => handleInputChange(name)}
+                      className={`${inputStyle} ${isDarkMode ? darkInput : lightInput}`}
+                    />
+                    {errors[name] && <p className="text-red-500 text-sm">{errors[name]}</p>}
+                  </div>
+                ))}
+
                 <div>
-                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>First Name</label>
-                  <input
-                    name="firstName"
-                    className={`mt-1 block w-full px-3 py-2 border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                    placeholder="Enter your first name"
-                    type="text"
-                    onChange={() => handleInputChange('firstName')}
-                  />
-                  {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Last Name</label>
-                  <input
-                    name="lastName"
-                    className={`mt-1 block w-full px-3 py-2 border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                    placeholder="Enter your last name"
-                    type="text"
-                    onChange={() => handleInputChange('lastName')}
-                  />
-                  {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email</label>
-                  <input
-                    name="email"
-                    className={`mt-1 block w-full px-3 py-2 border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                    placeholder="Enter your email"
-                    type="email"
-                    onChange={() => handleInputChange('email')}
-                  />
-                  {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Phone Number</label>
-                  <input
-                    name="phone"
-                    className={`mt-1 block w-full px-3 py-2 border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                    placeholder="Enter your number"
-                    type="text"
-                    onChange={() => handleInputChange('phone')}
-                  />
-                  {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>DOB</label>
-                  <input
-                    name="dob"
-                    className={`mt-1 block w-full px-3 py-2 border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                    placeholder="Enter your date of birth"
-                    type="date"
-                    onChange={() => handleInputChange('dob')}
-                  />
-                  {errors.dob && <p className="text-red-500 text-sm">{errors.dob}</p>}
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>User  Type</label>
+                  <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>User Type</label>
                   <select
                     name="userType"
-                    className={`mt-1 block w-full px-3 py-2 border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                    className={`${inputStyle} ${isDarkMode ? darkInput : lightInput}`}
                     onChange={() => handleInputChange('userType')}
                   >
                     <option value="regular">Regular</option>
@@ -163,59 +130,42 @@ function Register() {
                     <option value="vip">Vip</option>
                   </select>
                 </div>
+
                 <div className="col-span-2">
                   <label className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Gender</label>
                   <div className="mt-2 flex items-center space-x-4">
-                    <div className="flex items-center">
-                      <input
-                        className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                        id="male"
-                        name="gender"
-                        type="radio"
-                        onChange={() => handleInputChange('gender')}
-                      />
-                      <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="male">
-                        Male
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                        id="female"
-                        name="gender"
-                        type="radio"
-                        onChange={() => handleInputChange('gender')}
-                      />
-                      <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="female">
-                        Female
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                        id="prefer-not-to-say"
-                        name="gender"
-                        type="radio"
-                        onChange={() => handleInputChange('gender')}
-                      />
-                      <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="prefer-not-to-say">
-                        Prefer not to say
-                      </label>
-                    </div>
+                    {['Male', 'Female', 'Prefer not to say'].map((gender, idx) => {
+                      const value = gender.toLowerCase().replace(/\s+/g, '-');
+                      return (
+                        <div className="flex items-center" key={value}>
+                          <input
+                            id={value}
+                            name="gender"
+                            type="radio"
+                            onChange={() => handleInputChange('gender')}
+                            className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <label htmlFor={value} className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                            {gender}
+                          </label>
+                        </div>
+                      );
+                    })}
                   </div>
                   {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
                 </div>
               </div>
+
               <div className="mt-6">
                 <div className="flex items-center">
                   <input
                     name="terms"
-                    className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                     id="terms"
                     type="checkbox"
-                    onChange={handleTermsChange} // Add the onChange handler here
+                    onChange={handleTermsChange}
+                    className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                   />
-                  <label className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`} htmlFor="terms">
+                  <label htmlFor="terms" className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     I agree to the{' '}
                     <a className="text-indigo-600 hover:underline" href="#" onClick={showTerms}>
                       terms and conditions
@@ -224,10 +174,15 @@ function Register() {
                 </div>
                 {errors.terms && <p className="text-red-500 text-sm">{errors.terms}</p>}
               </div>
+
               <div className="mt-6">
                 <button
-                  className={`w-full bg-transparent border border-blue-500 py-3 rounded-md hover:bg-blue-600 hover:text-white transition-all duration-300 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-200 text-black'}`}
                   type="submit"
+                  className={`w-full py-3 rounded-md transition-all duration-300 font-medium ${
+                    isDarkMode
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-blue-500 text-white hover:bg-blue-600'
+                  }`}
                 >
                   Register
                 </button>

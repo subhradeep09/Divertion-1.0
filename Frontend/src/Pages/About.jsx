@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FaLinkedin, FaGithub, FaFacebook, FaInstagram } from 'react-icons/fa';
-import { ThemeContext } from '../Context/ThemeContext';
 import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 
@@ -12,12 +11,12 @@ const socialLinks = {
     facebook: 'https://www.facebook.com/profile.php?id=100083845817568',
     instagram: 'https://www.instagram.com/soumik_bag_18/',
   },
-  vKousik: {
+  'vKousik': {
     linkedin: 'https://www.linkedin.com/in/kousik-mondal-b46688356/',
     facebook: 'https://www.facebook.com/profile.php?id=100058530370597',
     instagram: 'https://www.instagram.com/v_kousik.18/',
   },
-  subhradeep09: {
+  'subhradeep09': {
     linkedin: 'https://www.linkedin.com/in/subhradeep-bhattacharya/',
     facebook: 'https://www.facebook.com/profile.php?id=100086398238060',
     instagram: 'https://www.instagram.com/subhradeep_bhattacharya/',
@@ -30,10 +29,8 @@ const fadeUp = {
 };
 
 const AboutUs = () => {
-  const { isDarkMode: isDark } = useContext(ThemeContext);
   const [team, setTeam] = useState([]);
   const navigate = useNavigate();
-  const [activeIndex, setActiveIndex] = useState(null);
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -57,7 +54,7 @@ const AboutUs = () => {
   const featureCardClasses = "p-4 rounded-lg shadow-md transition-colors duration-300";
 
   return (
-    <div className={`min-h-screen ${isDark ? 'dark bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-800'}`}>
+    <div className="min-h-screen bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100">
       <div className="relative w-full h-[80vh] overflow-hidden flex items-center justify-center">
         <video
           autoPlay
@@ -97,7 +94,7 @@ const AboutUs = () => {
         }].map((block, idx) => (
           <motion.div
             key={idx}
-            className={`${cardClasses} ${isDark ? 'bg-gray-800' : 'bg-white'} text-center`}
+            className={`${cardClasses} bg-white dark:bg-gray-800 text-center`}
             initial="hidden"
             whileInView="visible"
             variants={fadeUp}
@@ -109,7 +106,7 @@ const AboutUs = () => {
         ))}
 
         <motion.div
-          className={`${cardClasses} ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+          className={`${cardClasses} bg-white dark:bg-gray-800`}
           initial="hidden"
           whileInView="visible"
           variants={fadeUp}
@@ -120,7 +117,7 @@ const AboutUs = () => {
             {[ '📅 Event creation', '👥 Registration', '🔐 Access control', '📲 Real-time updates', '🖥️ Responsive design', '📊 Smart scheduling' ].map((item, idx) => (
               <motion.div
                 key={idx}
-                className={`${featureCardClasses} ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                className={`${featureCardClasses} bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600`}
                 whileHover={{ scale: 1.05 }}
               >
                 {item}
@@ -129,14 +126,13 @@ const AboutUs = () => {
           </div>
         </motion.div>
         
-        {/* Team Section */}
         <motion.div initial="hidden" whileInView="visible" variants={fadeUp} transition={{ duration: 1 }}>
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">👨‍💻 Meet the Team</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {team.map((member, index) => (
               <motion.div
                 key={index}
-                className={`${cardClasses} ${isDark ? 'bg-gray-800' : 'bg-white'} text-center`}
+                className={`${cardClasses} bg-white dark:bg-gray-800 text-center`}
                 whileHover={{ scale: 1.05 }}
               >
                 <img
@@ -145,7 +141,7 @@ const AboutUs = () => {
                   className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-200 dark:border-gray-600 shadow-md"
                 />
                 <h3 className="text-xl font-semibold mb-1">{member.name || member.login}</h3>
-                <p className={`text-sm italic ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{member.bio || 'Tech Enthusiast'}</p>
+                <p className="text-sm italic text-gray-600 dark:text-gray-300">{member.bio || 'Tech Enthusiast'}</p>
                 <div className="mt-4 flex justify-center space-x-4">
                   <a href={member.html_url} target="_blank" rel="noreferrer" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
                     <FaGithub size={24} />
@@ -172,7 +168,7 @@ const AboutUs = () => {
         </motion.div>
 
         <motion.div
-          className={`${cardClasses} ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+          className={`${cardClasses} bg-white dark:bg-gray-800`}
           initial="hidden"
           whileInView="visible"
           variants={fadeUp}
@@ -195,7 +191,7 @@ const AboutUs = () => {
             }].map((feature, idx) => (
               <motion.div
                 key={idx}
-                className={`${featureCardClasses} ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                className={`${featureCardClasses} bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600`}
                 whileHover={{ scale: 1.05 }}
               >
                 <div className="text-3xl mb-2">{feature.icon}</div>
@@ -216,7 +212,7 @@ const AboutUs = () => {
         }].map((block, idx) => (
           <motion.div
             key={idx}
-            className={`${cardClasses} ${isDark ? 'bg-gray-800' : 'bg-white'} text-center`}
+            className={`${cardClasses} bg-white dark:bg-gray-800 text-center`}
             initial="hidden"
             whileInView="visible"
             variants={fadeUp}
@@ -227,9 +223,7 @@ const AboutUs = () => {
             {block.button && (
               <button
                 onClick={() => navigate('/contact')}
-                className={`inline-block px-6 py-3 rounded-full font-semibold transition-colors duration-300 ${
-                  isDark ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'
-                }`}
+                className="inline-block px-6 py-3 rounded-full font-semibold transition-colors duration-300 bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-500"
               >
                 Contact Us
               </button>
