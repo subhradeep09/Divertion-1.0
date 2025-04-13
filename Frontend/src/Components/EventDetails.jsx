@@ -11,6 +11,9 @@ const EventDetails = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedImage, setSelectedImage] = useState(null);
   const { state } = useLocation(); 
+  useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, []);
 
   useEffect(() => {
     const chart = echarts.init(document.getElementById("attendeeChart"));
@@ -132,7 +135,7 @@ const EventDetails = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="mt-20 min-h-screen bg-gray-50">
       <nav className="bg-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <a

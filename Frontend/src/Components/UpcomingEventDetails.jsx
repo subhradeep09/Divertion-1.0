@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 const UpcomingEventDetails = () => {
+  useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, []);
   const { state: event } = useLocation(); // Get the event data passed from the previous component
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
@@ -76,7 +79,7 @@ const UpcomingEventDetails = () => {
   const minutesRemaining = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="mt-20 min-h-screen bg-gray-50 dark:bg-gray-900">
       <nav className="bg-white shadow-lg dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/events" className="text-gray-800 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
