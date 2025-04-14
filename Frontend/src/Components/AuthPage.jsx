@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState,useEffect } from "react";
 import {
   FaFacebook,
   FaGoogle,
@@ -10,172 +10,115 @@ import {
   FaEyeSlash,
   FaLock,
   FaEnvelope,
-  FaTimes,
 } from "react-icons/fa";
-import { ThemeContext } from "../Context/ThemeContext";
 import { Link } from "react-router-dom";
 
 const AuthPage = () => {
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    }, []);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
-    <div
-      className={`flex justify-center items-center min-h-screen p-6 ${
-        isDarkMode ? "bg-[#0F172A] text-white" : "bg-gray-100 text-black"
-      }`}
-    >
-      <div
-        className={`flex w-full max-w-4xl p-8 rounded-xl shadow-lg border ${
-          isDarkMode
-            ? "bg-[#111827] border-gray-700"
-            : "bg-white border-gray-300"
-        } space-x-8`}
-      >
-        {/* Left Side: Video & Welcome Text */}
+    <div className="min-h-screen w-full flex items-center justify-center px-4 py-10 transition-all duration-300 bg-gradient-to-br from-blue-100 via-white to-purple-100 text-gray-900 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-white">
+      <div className="mt-20 grid grid-cols-1 md:grid-cols-2 w-full max-w-6xl rounded-3xl overflow-hidden shadow-2xl border bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-800">
+        {/* Left: Welcome Section */}
         <div
-          className={`w-1/2 flex flex-col items-center text-center ${
-            isDarkMode ? "text-white" : "text-black"
-          } p-6`}
+          className="relative p-8 flex flex-col items-center justify-center text-center bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url(https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1050&q=80)",
+          }}
         >
-          <h2 className="text-3xl font-bold mb-4">
-            WELCOME BACK TO EVENTHUB
-          </h2>
-          <p
-            className={`text-gray-400 mb-4 ${
-              isDarkMode ? "text-gray-300" : "text-gray-600"
-            }`}
-          >
-            Discover amazing events and experiences near you.
-          </p>
-          <video
-            src="https://cdn.pixabay.com/video/2022/09/13/131154-750216587_large.mp4"
-            autoPlay
-            loop
-            muted
-            className="rounded-lg shadow-lg w-full h-auto border border-gray-700"
-          ></video>
-          <h3 className="text-xl font-semibold mt-6">Connect with Us</h3>
-          <div className="social-container flex justify-center space-x-4 mt-3">
-            <a
-              href="#"
-              className="social-icon text-blue-600 text-2xl hover:text-blue-500"
-            >
-              <FaFacebook />
-            </a>
-            <a
-              href="#"
-              className="social-icon text-blue-400 text-2xl hover:text-blue-300"
-            >
-              <FaTwitter />
-            </a>
-            <a
-              href="#"
-              className="social-icon text-pink-500 text-2xl hover:text-pink-400"
-            >
-              <FaInstagram />
-            </a>
-            <a
-              href="#"
-              className="social-icon text-blue-700 text-2xl hover:text-blue-600"
-            >
-              <FaLinkedin />
-            </a>
-            <a
-              href="#"
-              className="social-icon text-red-500 text-2xl hover:text-red-400"
-            >
-              <FaYoutube />
-            </a>
+          <div className="absolute inset-0 bg-black/50"></div>
+          <div className="relative z-10">
+            <h2 className="text-4xl font-bold mb-4 text-white drop-shadow-xl">
+              Welcome to EventHub
+            </h2>
+            <p className="text-gray-200 text-lg mb-6 max-w-md mx-auto">
+              Find, join, and enjoy events like never before. Your ultimate
+              event companion awaits.
+            </p>
+            <h3 className="text-white font-semibold mb-2">Connect With Us</h3>
+            <div className="flex justify-center space-x-4 text-xl text-white">
+              <FaFacebook className="hover:text-blue-500 transition" />
+              <FaTwitter className="hover:text-blue-400 transition" />
+              <FaInstagram className="hover:text-pink-500 transition" />
+              <FaLinkedin className="hover:text-blue-600 transition" />
+              <FaYoutube className="hover:text-red-500 transition" />
+            </div>
           </div>
         </div>
 
-        {/* Right Side: Login Form */}
-        <div
-          className={`w-1/2 p-6 relative flex flex-col justify-center ${
-            isDarkMode ? "text-white" : "text-black"
-          }`}
-        >
-          <h2 className="text-center text-2xl font-semibold mb-6">Log In</h2>
-          <div className="relative mb-4">
+        {/* Right: Login Form */}
+        <div className="p-10 md:p-14 flex flex-col justify-center space-y-6">
+          <h2 className="text-3xl font-bold text-center">Login to EventHub</h2>
+
+          {/* Email */}
+          <div className="relative">
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full p-3 pl-10 rounded-md focus:ring-2 focus:ring-blue-500 ${
-                isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
-              }`}
+              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent dark:border-gray-600"
             />
-            <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
 
-          <div className="relative mb-4">
+          {/* Password */}
+          <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`w-full p-3 pl-10 pr-10 rounded-md focus:ring-2 focus:ring-blue-500 ${
-                isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-black"
-              }`}
+              className="w-full pl-12 pr-12 py-3 rounded-xl border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent dark:border-gray-600"
             />
-            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             {showPassword ? (
               <FaEyeSlash
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
               />
             ) : (
               <FaEye
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
               />
             )}
           </div>
 
-          <p className="text-blue-400 text-right text-sm cursor-pointer mb-4">
+          {/* Forgot password */}
+          <p className="text-right text-sm text-blue-500 cursor-pointer hover:underline">
             Forgot Password?
           </p>
-          <button
-            className={`w-full py-3 rounded-md border ${
-              isDarkMode
-                ? "bg-transparent border-blue-500 text-white hover:bg-blue-600"
-                : "bg-transparent border-blue-500 text-black hover:bg-blue-600 hover:text-white"
-            } transition-all duration-300`}
-          >
+
+          {/* Login button */}
+          <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300">
             Log In
           </button>
 
-          <p
-            className={`text-center mt-2 ${
-              isDarkMode ? "text-gray-400" : "text-gray-800"
-            }`}
-          >
+          {/* Create account */}
+          <p className="text-center text-sm">
             New Here?{" "}
-            <Link to="/login" className="text-blue-400 cursor-pointer">
+            <Link to="/login" className="text-blue-500 hover:underline">
               Create an Account
             </Link>
           </p>
 
-          {/* OR Separator */}
-          <div className="flex items-center my-4">
-            <div className="flex-grow border-t border-gray-600"></div>
-            <span className="mx-2 text-gray-400">or</span>
-            <div className="flex-grow border-t border-gray-600"></div>
+          {/* OR separator */}
+          <div className="flex items-center gap-4">
+            <div className="flex-grow border-t border-gray-400 dark:border-gray-600" />
+            <span className="text-gray-400 text-sm dark:text-gray-500">or</span>
+            <div className="flex-grow border-t border-gray-400 dark:border-gray-600" />
           </div>
 
           {/* Google Sign Up */}
-          <button
-            className={`w-full flex items-center justify-center bg-transparent border ${
-              isDarkMode
-                ? "border-blue-500 text-white"
-                : "border-blue-300 text-black"
-            } py-3 rounded-md hover:bg-blue-500 hover:text-white transition-all duration-300`}
-          >
-            <FaGoogle className="mr-2" /> Sign up with Google
+          <button className="w-full py-3 border border-gray-400 dark:border-gray-600 flex items-center justify-center gap-3 rounded-xl hover:bg-blue-500 hover:text-white transition-all duration-300">
+            <FaGoogle /> Sign in with Google
           </button>
         </div>
       </div>

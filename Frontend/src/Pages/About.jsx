@@ -29,6 +29,9 @@ const fadeUp = {
 };
 
 const AboutUs = () => {
+  useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, []);
   const [team, setTeam] = useState([]);
   const navigate = useNavigate();
 

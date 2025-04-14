@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import {
   FaFacebookF,
   FaInstagram,
@@ -19,6 +19,9 @@ const rightFadeIn = {
 };
 
 const ContactUs = () => {
+  useEffect(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, []);
   return (
     <section className="min-h-screen w-full grid md:grid-cols-2 bg-white dark:bg-black text-black dark:text-white transition-colors duration-500">
 
