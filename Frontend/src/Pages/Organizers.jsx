@@ -2,7 +2,7 @@ import React from 'react'
 
 function Organizers() {
   return (
-    <div>Organizers</div>
+    <div className='bg-amber-500'>Organizers of Eventhub</div>
   )
 }
 
