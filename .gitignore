@@ -1,38 +1,15 @@
-# Node modules (required for dependencies but not source code)
-Backend/node_modules/
+# Ignore node_modules from all folders
+**/node_modules/
 
-# Logs
-logs
-*.log
+# Ignore all .env files recursively
+**/.env
+
+# Optional: other common ignores
+.DS_Store
+.env.local
+.env.*.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# dotenv files (important!)
-Backend/.env
-Backend/.env.local
-Backend/.env.*.local
-
-# OS-specific
-.DS_Store
-Thumbs.db
-
-# Build artifacts (if you use TypeScript or a build tool)
 dist/
 build/
-
-# IDE/editor folders
-.vscode/
-.idea/
-
-# Optional: test coverage reports
-coverage/
-
-# Optional: database dumps or local dev files
-dump/
-*.local
-
-# Optional: Mac/Linux/Windows specific swap or temp files
-*.swp
-*.swo
-*~
