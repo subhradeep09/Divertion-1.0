@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from '../assets/Logo.png';
 import { scrollToTop } from '../utils/ScrollToTop';
+import { Link } from 'react-router-dom';
 
 const navLinks = [
   { label: 'Home', href: '#' },
@@ -10,7 +11,7 @@ const navLinks = [
 ];
 
 const legalLinks = [
-  { label: 'Privacy Policy', href: '#' },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
   { label: 'Terms of Service', href: '#' },
   { label: 'Cookie Policy', href: '#' },
 ];
@@ -74,9 +75,15 @@ const Footer = () => (
       <nav className="flex flex-col gap-2 items-center md:items-start">
         <span className="font-semibold mb-1">Legal</span>
         {legalLinks.map(link => (
-          <a key={link.label} href={link.href} className="text-white/80 hover:text-pink-400 text-sm transition">
-            {link.label}
-          </a>
+          link.href.startsWith('/') ? (
+            <Link key={link.label} to={link.href} className="text-white/80 hover:text-pink-400 text-sm transition">
+              {link.label}
+            </Link>
+          ) : (
+            <a key={link.label} href={link.href} className="text-white/80 hover:text-pink-400 text-sm transition">
+              {link.label}
+            </a>
+          )
         ))}
       </nav>
       {/* Social Media Icons */}
