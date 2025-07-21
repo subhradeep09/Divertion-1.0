@@ -1,8 +1,9 @@
 import Header from './components/header';
 import Footer from './components/footer';
-import LandingPage from './pages/landing/landingpage';
 import { useEffect } from 'react';
 import Lenis from 'lenis';
+import { BrowserRouter as Router } from 'react-router-dom';
+import AppRouter from './layouts/AppRouter';
 
 function App() {
   useEffect(() => {
@@ -27,11 +28,11 @@ function App() {
   }, []);
 
   return (
-    <>
+    <Router>
       <Header />
-      <LandingPage />
+      <AppRouter />
       <Footer />
-    </>
+    </Router>
   );
 }
 
