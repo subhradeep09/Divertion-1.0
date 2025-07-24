@@ -6,6 +6,8 @@ import Contact from '../pages/Explore/contact';
 import PrivacyPolicy from '../pages/legals/privacypolicy';
 import CookiePolicy from '../pages/legals/cookiePolicy';
 import TermsOfService from '../pages/legals/termsOfService';
+import Login from '../pages/Register/login';
+import Register from '../pages/Register/register';
 
 const AppRouter = () => (
   <Routes>
@@ -15,6 +17,8 @@ const AppRouter = () => (
     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     <Route path="/cookie-policy" element={<CookiePolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
   </Routes>
 );
 
