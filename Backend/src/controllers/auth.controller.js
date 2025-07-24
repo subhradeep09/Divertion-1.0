@@ -209,6 +209,7 @@ export const loginUser = async (req, res) => {
 };
 
 export const logoutUser = asyncHandler(async (req, res) => {
+  console.log(req.user);
   await User.findByIdAndUpdate(
     req.user._id,
     {
@@ -223,6 +224,8 @@ export const logoutUser = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: true,
+    sameSite: "Lax",
+    path: "/",
   };
 
   return res
@@ -317,27 +320,24 @@ export const refreshAccessToken = async (req, res, next) => {
     // console.log("options", options);
     // console.log("user", user._id.toString());
 
-    const { accessToken, refreshToken } =
-      await generateRefreshAndAccessToken(user._id);
+    const { accessToken, refreshToken } = await generateRefreshAndAccessToken(
+      user._id
+    );
 
     // console.log("refreshToken", refreshToken);
     // console.log("accessToken", accessToken);
-    
 
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
-      .json( new ApiResponse(
-          200,
-          "Access token refreshed successfully",
-          {
-            accessToken,
-            refreshToken,
-          }
-        ));
+      .json(
+        new ApiResponse(200, "Access token refreshed successfully", {
+          accessToken,
+          refreshToken,
+        })
+      );
   } catch (error) {
     next(error);
   }
 };
-
