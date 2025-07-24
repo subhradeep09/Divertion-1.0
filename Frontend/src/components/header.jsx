@@ -1,13 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../assets/Logo.png';
-import { scrollToTop } from '../utils/ScrollToTop';
 
 const navLinks = [
-  { label: 'Home', href: '#' },
-  { label: 'Browse Events', href: '#' },
-  { label: 'About', href: '#about' },
-  { label: 'Login', href: '#' },
-  { label: 'Register', href: '#' },
+  { label: 'Home', href: '/' },
+  { label: 'Browse Events', href: '/events' },
+  { label: 'About', href: '/about' },
+  { label: 'Login', href: '/login' },
+  { label: 'Register', href: '/register' },
 ];
 
 const Header = () => {
@@ -28,17 +28,13 @@ const Header = () => {
             className += " text-white hover:bg-pink-500/80 hover:text-white";
           }
           return (
-            <a
+            <Link
               key={link.label}
-              href={link.href}
+              to={link.href}
               className={className}
-              onClick={e => {
-                e.preventDefault();
-                scrollToTop();
-              }}
             >
               {link.label}
-            </a>
+            </Link>
           );
         })}
       </nav>

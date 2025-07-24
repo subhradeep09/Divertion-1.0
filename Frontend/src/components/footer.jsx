@@ -1,19 +1,19 @@
 import React from 'react';
 import logo from '../assets/Logo.png';
 import { scrollToTop } from '../utils/ScrollToTop';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const navLinks = [
-  { label: 'Home', href: '#' },
+  { label: 'Home', href: '/' },
   { label: 'Features', href: '#features' },
-  { label: 'About Us', href: '#' },
-  { label: 'Contact', href: '#' },
+  { label: 'About Us', href: '/about' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 const legalLinks = [
   { label: 'Privacy Policy', href: '/privacy-policy' },
-  { label: 'Terms of Service', href: '#' },
-  { label: 'Cookie Policy', href: '#' },
+  { label: 'Terms of Service', href: '/terms-of-service' },
+  { label: 'Cookie Policy', href: '/cookie-policy' },
 ];
 
 const socialLinks = [
@@ -34,72 +34,127 @@ const socialLinks = [
   ) },
 ];
 
-const Footer = () => (
-  <footer className="relative overflow-hidden py-10 px-4 bg-black/90 text-white border-t border-gray-800 backdrop-blur-md shadow-lg">
-    {/* Colored shadow */}
-    <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-2/3 h-32 bg-pink-500/40 blur-2xl rounded-full z-0 pointer-events-none" />
-    <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:justify-between gap-10 items-center md:items-start relative z-10">
-      {/* Brand/Logo */}
-      <div className="flex flex-col items-center md:items-start gap-2">
-        <img src={logo} alt="Logo" className="h-25 w-auto mb-1" />
-        <span className="text-lg font-bold tracking-wide">Divertion</span>
-        <span className="text-sm text-pink-400">Your gateway to extraordinary events.</span>
-      </div>
-      {/* Navigation Links */}
-      <nav className="flex flex-col gap-2 items-center md:items-start">
-        <span className="font-semibold mb-1">Explore</span>
-        {navLinks.map(link => (
-          <a
-            key={link.label}
-            href={link.href}
-            className="text-white/80 hover:text-pink-400 text-sm transition cursor-pointer"
-            onClick={e => {
-              e.preventDefault();
-              if (link.label === 'Home') {
-                scrollToTop();
-              } else if (link.label === 'Features') {
-                const el = document.getElementById('features');
-                if (window.lenis && el) {
-                  window.lenis.scrollTo(el, { duration: 1.2, easing: t => 1 - Math.pow(1 - t, 3) });
-                } else if (el) {
-                  el.scrollIntoView({ behavior: 'smooth' });
-                }
-              }
-            }}
-          >
-            {link.label}
-          </a>
-        ))}
-      </nav>
-      {/* Legal Links */}
-      <nav className="flex flex-col gap-2 items-center md:items-start">
-        <span className="font-semibold mb-1">Legal</span>
-        {legalLinks.map(link => (
-          link.href.startsWith('/') ? (
-            <Link key={link.label} to={link.href} className="text-white/80 hover:text-pink-400 text-sm transition">
+const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Helper for smooth scroll with lenis fallback
+  function getLenis() {
+    return window.lenis || {
+      scrollTo: (el, opts) => el.scrollIntoView({ behavior: 'smooth' }),
+    };
+  }
+
+  return (
+    <footer className="relative overflow-hidden py-10 px-4 bg-black/90 text-white border-t border-gray-800 backdrop-blur-md shadow-lg">
+      {/* Colored shadow */}
+      <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-2/3 h-32 bg-pink-500/40 blur-2xl rounded-full z-0 pointer-events-none" />
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:justify-between gap-10 items-center md:items-start relative z-10">
+        {/* Brand/Logo */}
+        <div className="flex flex-col items-center md:items-start gap-2">
+          <img src={logo} alt="Logo" className="h-25 w-auto mb-1" />
+          <span className="text-lg font-bold tracking-wide">Divertion</span>
+          <span className="text-sm text-pink-400">Your gateway to extraordinary events.</span>
+        </div>
+        {/* Navigation Links */}
+        <nav className="flex flex-col gap-2 items-center md:items-start">
+          <span className="font-semibold mb-1">Explore</span>
+          {navLinks.map(link => {
+            if (link.href === '#features') {
+              // Special logic for Features anchor
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-white/80 hover:text-pink-400 text-sm transition cursor-pointer"
+                  onClick={e => {
+                    e.preventDefault();
+                    scrollToTop();
+                    const scrollToFeatures = () => {
+                      const el = document.getElementById('features');
+                      if (el) {
+                        const lenis = getLenis();
+                        lenis.scrollTo(el, { duration: 1.2, easing: t => 1 - Math.pow(1 - t, 3) });
+                      }
+                    };
+
+                    if (location.pathname !== '/') {
+                      navigate('/', {
+                        state: { scrollTo: 'features' },
+                      });
+                      setTimeout(scrollToFeatures, 300);
+                    } else {
+                      scrollToFeatures();
+                    }
+                  }}
+                >
+                  {link.label}
+                </a>
+              );
+            } else if (link.href.startsWith('/')) {
+              return (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="text-white/80 hover:text-pink-400 text-sm transition"
+                  onClick={scrollToTop}
+                >
+                  {link.label}
+                </Link>
+              );
+            } else {
+              // Internal section anchor
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-white/80 hover:text-pink-400 text-sm transition cursor-pointer"
+                  onClick={e => {
+                    e.preventDefault();
+                    scrollToTop();
+                    const el = document.getElementById(link.href.replace('#', ''));
+                    if (window.lenis && el) {
+                      window.lenis.scrollTo(el, { duration: 1.2, easing: t => 1 - Math.pow(1 - t, 3) });
+                    } else if (el) {
+                      el.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  {link.label}
+                </a>
+              );
+            }
+          })}
+        </nav>
+        {/* Legal Links */}
+        <nav className="flex flex-col gap-2 items-center md:items-start">
+          <span className="font-semibold mb-1">Legal</span>
+          {legalLinks.map(link => (
+            <Link
+              key={link.label}
+              to={link.href}
+              className="text-white/80 hover:text-pink-400 text-sm transition"
+              onClick={scrollToTop}
+            >
               {link.label}
             </Link>
-          ) : (
-            <a key={link.label} href={link.href} className="text-white/80 hover:text-pink-400 text-sm transition">
-              {link.label}
-            </a>
-          )
-        ))}
-      </nav>
-      {/* Social Media Icons */}
-      <div className="flex flex-col items-center md:items-end gap-2">
-        <span className="font-semibold mb-1">Connect</span>
-        <div className="flex gap-4">
-          {socialLinks.map(link => (
-            <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-pink-400 transition">
-              {link.icon}
-            </a>
           ))}
+        </nav>
+        {/* Social Media Icons */}
+        <div className="flex flex-col items-center md:items-end gap-2">
+          <span className="font-semibold mb-1">Connect</span>
+          <div className="flex gap-4">
+            {socialLinks.map(link => (
+              <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-pink-400 transition">
+                {link.icon}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-    <div className="mt-8 text-xs text-white/60 text-center relative z-10">&copy; {new Date().getFullYear()} Divertion. All rights reserved.</div>
-  </footer>
-);
+      <div className="mt-8 text-xs text-white/60 text-center relative z-10">&copy; {new Date().getFullYear()} Divertion. All rights reserved.</div>
+    </footer>
+  );
+};
 
 export default Footer;
