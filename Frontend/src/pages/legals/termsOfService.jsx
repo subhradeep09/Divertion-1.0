@@ -109,37 +109,6 @@ const TermsOfService = () => {
               </p>
             </section>
           ))}
-
-          {/* Agreement Checkbox */}
-          <div className="flex items-center justify-center mb-4">
-            <input
-              id="termsCheckbox"
-              type="checkbox"
-              checked={agreed}
-              onChange={() => setAgreed(!agreed)}
-              className="mr-2 w-5 h-5 accent-pink-500"
-            />
-            <label htmlFor="termsCheckbox" className="text-white/90 text-sm md:text-base">
-              I have read and agree to the Terms of Service
-            </label>
-          </div>
-          <div className="flex justify-center gap-6 mt-8">
-            <button
-              type="button"
-              disabled={!agreed}
-              className={`px-8 py-3 font-bold rounded-full shadow-lg transition-colors duration-300 ${
-                agreed ? 'bg-pink-500 hover:bg-pink-600 text-white' : 'bg-gray-700 text-white/60 cursor-not-allowed'
-              }`}
-            >
-              Accept
-            </button>
-            <button
-              type="button"
-              className="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-pink-400 font-bold rounded-full shadow-lg transition-colors duration-300"
-            >
-              Decline
-            </button>
-          </div>
         </main>
       </div>
     </section>

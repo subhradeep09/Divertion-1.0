@@ -1,1 +1,62 @@
 @import "tailwindcss";
+@keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
+        .animate-spin-slow { animation: spin 12s linear infinite; }
+        /* Animated Orbs */
+        @keyframes orb1 {
+          0%,100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-16px) scale(1.05);}
+        }
+        @keyframes orb2 {
+          0%,100% { transform: translateY(0) scale(1);}
+          50% { transform: translateY(12px) scale(1.1);}
+        }
+        @keyframes orb3 {
+          0%,100% { transform: translate(0,0) scale(1);}
+          50% { transform: translate(4px, -8px) scale(1.06);}
+        }
+        .animate-orb1 { animation: orb1 8s ease-in-out infinite; }
+        .animate-orb2 { animation: orb2 10s ease-in-out infinite; }
+        .animate-orb3 { animation: orb3 7s ease-in-out infinite; }
+        /* 3D Cube Illusion */
+        .cube-3d {
+          position: relative;
+          width: 2.5rem;
+          height: 2.5rem;
+          transform-style: preserve-3d;
+          animation: cube-rotate 5s linear infinite;
+        }
+        .cube-3d:before, .cube-3d:after {
+          content: '';
+          position: absolute;
+          left: 0; top: 0;
+          width: 100%; height: 100%;
+          border-radius: 0.3rem;
+        }
+        .cube-3d:before {
+          background: linear-gradient(135deg, #e879f9 40%, #a78bfa 100%);
+          opacity: 0.27;
+          filter: blur(1px);
+        }
+        .cube-3d:after {
+          background: linear-gradient(135deg, #f472b6 10%, #a21caf 70%);
+          opacity: 0.22;
+          filter: blur(6px);
+          transform: scale(1.13) translateY(4px);
+        }
+        @keyframes cube-rotate {
+          0% { transform: rotateX(18deg) rotateY(0deg);}
+          100% { transform: rotateX(18deg) rotateY(360deg);}
+        }
