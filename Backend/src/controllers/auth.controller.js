@@ -127,7 +127,7 @@ export const registerUser = async (req, res, next) => {
   }
 };
 
-export const verifyOtp = async (req, res) => {
+export const verifyOtp = async (req, res, next) => {
   try {
     const { userId, otp } = req.body;
     if (!userId || !otp) {
@@ -198,11 +198,7 @@ export const loginUser = async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        {
-          user: loggedInUser,
-          accessToken,
-          refreshToken,
-        },
+        { user: loggedInUser, accessToken, refreshToken },
         "User logged in successfully"
       )
     );

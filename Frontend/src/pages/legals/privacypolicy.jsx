@@ -116,4 +116,4 @@ const PrivacyPolicy = () => (
   </section>
 );
 
-export default PrivacyPolicy; 
+export default PrivacyPolicy;

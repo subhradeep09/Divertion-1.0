@@ -1,21 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../utils/axiosInstance';
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     setIsAnimating(true);
     return () => setIsAnimating(false);
   }, []);
 
-  const handleLogin = (e) => {
+  const showError = (msg) => {
+    alert(msg);
+  };
+
+  const showSuccess = (msg) => {
+    alert(msg);
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Replace this with actual auth logic
-    navigate('/dashboard');
+    try {
+      const response = await axiosInstance.post('/login', { email, password });
+
+      const { success, message, data } = response.data;
+      // console.log("Login response:", JSON.stringify(response.data, null, 2));
+
+      const { user, accessToken, refreshToken } = message || {};
+      if (!success || !user) {
+        console.error("Login failed or user data is missing:", message);
+        showError(message || "Login failed");
+        return;
+      }
+
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      // console.log("User stored in localStorage:", user);
+      // console.log("Access token:", accessToken);
+
+      window.dispatchEvent(new Event('storage'));
+      showSuccess("Login successful");
+      navigate('/');
+    } catch (error) {
+      showError(error?.response?.data?.message || "Login failed");
+    }
   };
 
   return (
@@ -97,6 +131,8 @@ const Login = () => {
                   className="bg-transparent flex-1 text-white/90 placeholder:text-white/40 focus:outline-none text-sm"
                   placeholder="your@email.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -113,6 +149,8 @@ const Login = () => {
                   className="bg-transparent flex-1 text-white/90 placeholder:text-white/40 focus:outline-none text-sm"
                   placeholder="••••••••"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button 
                   type="button" 
@@ -122,20 +160,6 @@ const Login = () => {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
-            </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-sm text-white/70">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="h-4 w-4 rounded border-[#3e3e42] bg-[#1e1e21] text-pink-500 focus:ring-pink-500 focus:ring-offset-[#1e1e21] transition-all hover:border-pink-400"
-                />
-                Remember me
-              </label>
-              <a href="#" className="text-pink-400 hover:underline hover:text-pink-300 transition-colors">
-                Forgot Password?
-              </a>
             </div>
 
             {/* Login Button */}

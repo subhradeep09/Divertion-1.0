@@ -8,6 +8,7 @@ import CookiePolicy from '../pages/legals/cookiePolicy';
 import TermsOfService from '../pages/legals/termsOfService';
 import Login from '../pages/Register/login';
 import Register from '../pages/Register/register';
+import VerifyOTP from '../pages/Register/otp';
 
 const AppRouter = () => (
   <Routes>
@@ -19,6 +20,7 @@ const AppRouter = () => (
     <Route path="/terms-of-service" element={<TermsOfService />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
+    <Route path="/verify-otp" element={<VerifyOTP />} />
   </Routes>
 );
 
