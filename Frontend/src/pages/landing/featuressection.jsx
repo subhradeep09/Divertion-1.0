@@ -34,7 +34,7 @@ const features = [
 ];
 
 const Features = () => (
-  <section id='features' className="relative bg-gradient-to-br from-pink-500 via-pink-600 to-fuchsia-700 py-20 px-4 flex flex-col items-center justify-center overflow-hidden">
+  <section id='features' className="relative bg-gradient-to-br from-pink-500 via-fuchsia-600 to-purple-700 py-20 px-4 flex flex-col items-center justify-center overflow-hidden">
     {/* Lighting effect */}
     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[35vw] max-w-6xl max-h-[600px] bg-pink-400/40 blur-3xl rounded-full z-0 shadow-[0_0_120px_60px_rgba(236,72,153,0.25)]" />
     <div className="absolute inset-0 bg-white/5 backdrop-blur-sm pointer-events-none z-0" />

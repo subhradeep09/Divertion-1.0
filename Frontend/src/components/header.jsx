@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/Logo.png';
 
@@ -7,6 +7,7 @@ const Header = () => {
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const loadUser = () => {
@@ -43,6 +44,24 @@ const Header = () => {
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
   const handleLogout = async () => {
     try {
       await fetch(`${import.meta.env.VITE_REACT_APP_API_URL}/logout`, {
@@ -55,14 +74,39 @@ const Header = () => {
     localStorage.removeItem('user');
     setUser(null);
     setDropdownOpen(false);
-    navigate('/login');
+    window.location.href = '/login'; 
   };
 
-  const navLinks = [
+  const adminLinks = [
+    { label: 'Dashboard', href: '/admin/dashboard' },
+    { label: 'Manage Users', href: '/admin/users' },
+    { label: 'Manage Events', href: '/admin/events' },
+    { label: 'Reports', href: '/admin/reports' },
+  ];
+
+  const organizerLinks = [
+    { label: 'My Events', href: '/organizer/events' },
+    { label: 'Create Event', href: '/organizer/create' },
+    { label: 'Registrations', href: '/organizer/registrations' },
+  ];
+
+  const attendeeLinks = [
     { label: 'Home', href: '/' },
     { label: 'Browse Events', href: '/events' },
-    { label: 'About', href: '/about' },
+    { label: 'My Tickets', href: '/attendee/tickets' },
   ];
+
+  const navLinks = !user
+    ? [
+        { label: 'Home', href: '/' },
+        { label: 'Browse Events', href: '/events' },
+        { label: 'About', href: '/about' },
+      ]
+    : user.role === 'admin'
+    ? adminLinks
+    : user.role === 'organizer'
+    ? organizerLinks
+    : attendeeLinks;
 
   // console.log("Current user state in Header:", user);
 
@@ -95,7 +139,25 @@ const Header = () => {
               {user.username}
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-10 min-w-[140px]">
+              <div ref={dropdownRef} className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-10 min-w-[180px]">
+                {user.role === 'admin' && (
+                  <>
+                    <Link to="/admin/profile" className="block px-4 py-2 hover:bg-pink-100">Admin Profile</Link>
+                    <Link to="/admin/settings" className="block px-4 py-2 hover:bg-pink-100">Admin Settings</Link>
+                  </>
+                )}
+                {user.role === 'organizer' && (
+                  <>
+                    <Link to="/organizer/profile" className="block px-4 py-2 hover:bg-pink-100">Organizer Profile</Link>
+                    <Link to="/organizer/settings" className="block px-4 py-2 hover:bg-pink-100">Event Settings</Link>
+                  </>
+                )}
+                {user.role === 'attendee' && (
+                  <>
+                    <Link to="/attendee/profile" className="block px-4 py-2 hover:bg-pink-100">My Profile</Link>
+                    <Link to="/attendee/settings" className="block px-4 py-2 hover:bg-pink-100">Settings</Link>
+                  </>
+                )}
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 hover:bg-pink-100"
