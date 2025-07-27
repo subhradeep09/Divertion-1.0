@@ -3,7 +3,7 @@ import Footer from './components/footer';
 import { useEffect } from 'react';
 import Lenis from 'lenis';
 import { BrowserRouter as Router } from 'react-router-dom';
-import AppRouter from './layouts/AppRouter';
+import AllRoute from './AllRoute';
 
 function App() {
   useEffect(() => {
@@ -30,7 +30,7 @@ function App() {
   return (
     <Router>
       <Header />
-      <AppRouter />
+      <AllRoute />
       <Footer />
     </Router>
   );

@@ -46,7 +46,7 @@ const Login = () => {
 
       window.dispatchEvent(new Event('storage'));
       showSuccess("Login successful");
-      navigate('/');
+      window.location.href = '/'; // forces re-evaluation of AllRoutes
     } catch (error) {
       showError(error?.response?.data?.message || "Login failed");
     }
