@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { showSuccess } from '../utils/toaster';
 import logo from '../assets/Logo.png';
 
 
@@ -19,6 +20,7 @@ const Header = () => {
           if (parsedUser && parsedUser.username) {
             // console.log("Parsed user set:", parsedUser);
             setUser(parsedUser);
+            showSuccess("Login successful");
           } else {
             console.warn("Parsed user is invalid or missing username:", parsedUser);
             localStorage.removeItem('user');
@@ -72,7 +74,9 @@ const Header = () => {
       console.error("Logout failed:", error);
     }
     localStorage.removeItem('user');
+    showSuccess("Logout successful");
     setUser(null);
+    console.log("Toaster: Logout successful");
     setDropdownOpen(false);
     window.location.href = '/login'; 
   };

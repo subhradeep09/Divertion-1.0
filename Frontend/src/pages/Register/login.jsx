@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
+import { showSuccess, showError } from '../../utils/toaster';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,13 +16,6 @@ const Login = () => {
     return () => setIsAnimating(false);
   }, []);
 
-  const showError = (msg) => {
-    alert(msg);
-  };
-
-  const showSuccess = (msg) => {
-    alert(msg);
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,7 +27,6 @@ const Login = () => {
 
       const { user, accessToken, refreshToken } = message || {};
       if (!success || !user) {
-        console.error("Login failed or user data is missing:", message);
         showError(message || "Login failed");
         return;
       }
@@ -45,10 +38,13 @@ const Login = () => {
       // console.log("Access token:", accessToken);
 
       window.dispatchEvent(new Event('storage'));
-      showSuccess("Login successful");
+      // showSuccess("Login successful");
+      console.log("Toaster: Login successful");
       window.location.href = '/'; // forces re-evaluation of AllRoutes
     } catch (error) {
-      showError(error?.response?.data?.message || "Login failed");
+      const serverError = error?.response?.data?.message;
+      const fallbackMessage = "Login failed. Please check your credentials and try again.";
+      showError(serverError || fallbackMessage);
     }
   };
 

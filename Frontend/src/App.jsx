@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Lenis from 'lenis';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AllRoute from './AllRoute';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   useEffect(() => {
@@ -29,6 +30,7 @@ function App() {
 
   return (
     <Router>
+      <Toaster position="top-right" reverseOrder={false} />
       <Header />
       <AllRoute />
       <Footer />
