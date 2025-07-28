@@ -5,6 +5,7 @@ import { Routes, Route } from 'react-router-dom';
 import PrivacyPolicy from './pages/legals/privacypolicy';
 import CookiePolicy from './pages/legals/cookiePolicy';
 import TermsOfService from './pages/legals/termsOfService';
+import BrowseEvents from './pages/Events/BrowseEvents';
 
 const AllRoute = () => {
   const [user, setUser] = useState(null);
@@ -29,6 +30,7 @@ const AllRoute = () => {
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/cookie-policy" element={<CookiePolicy />} />
       <Route path="/terms-of-service" element={<TermsOfService />} />
+      <Route path="/events" element={<BrowseEvents />} />
 
       {/* Role-based or unauthenticated routing */}
       {!user && <Route path="/*" element={<AppRouter />} />}
