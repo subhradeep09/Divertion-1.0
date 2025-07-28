@@ -78,6 +78,7 @@ const Register = () => {
     // If there are errors, show them and return
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
+      console.log("Validation Errors:", errors);
       const firstError = Object.values(errors)[0];
       showError(firstError);
       return;
@@ -125,17 +126,25 @@ const Register = () => {
         showError("Registration successful but no userId returned. Please try again.");
       }
     } catch (err) {
-      console.error('Registration error:', err); // Add logging
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Registration failed";
-      showError(errorMessage);
-      
+      console.error('Registration error:', err);
+      const backendMessage = err?.response?.data?.message;
+      const backendErrors = err?.response?.data?.errors;
+      const firstBackendError = backendErrors && Object.values(backendErrors)[0];
+      const isUsernameConflict = backendMessage?.toLowerCase().includes('username');
+
+      showError(firstBackendError || backendMessage || "Registration failed. Please try again.");
+
+      // Handle field error for username already taken
+      if (isUsernameConflict) {
+        setFieldErrors(prev => ({
+          ...prev,
+          username: 'Username already taken. Please choose another.'
+        }));
+      }
+
       // Handle backend validation errors
-      if (err?.response?.data?.errors) {
-        setFieldErrors(err.response.data.errors);
+      if (backendErrors) {
+        setFieldErrors(backendErrors);
       }
     } finally {
       setIsSubmitting(false);
