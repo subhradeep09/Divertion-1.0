@@ -89,8 +89,8 @@ const Header = () => {
   ];
 
   const organizerLinks = [
-    { label: 'My Events', href: '/organizer/events' },
-    { label: 'Create Event', href: '/organizer/create' },
+    { label: 'My Events', href: '/' },
+    { label: 'Create Event', href: '/create-event' },
     { label: 'Registrations', href: '/organizer/registrations' },
   ];
 
