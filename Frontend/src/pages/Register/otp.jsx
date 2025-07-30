@@ -72,8 +72,8 @@ const OtpVerificationModal = ({ onVerified }) => {
       if (remaining === 0) clearInterval(timer);
     };
 
-    updateCountdown();
     const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
     return () => clearInterval(timer);
   }, [userId, navigate]);
 
