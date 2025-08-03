@@ -20,6 +20,7 @@ const generateRefreshAndAccessToken = async (userId) => {
 };
 
 export const registerUser = async (req, res, next) => {
+  console.log("Register");
   try {
     const { username, email, password, fullname, phoneNumber, role } = req.body;
 
