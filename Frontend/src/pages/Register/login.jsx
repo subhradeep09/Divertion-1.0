@@ -39,7 +39,7 @@ const Login = () => {
 
       window.dispatchEvent(new Event('storage'));
       // showSuccess("Login successful");
-      console.log("Toaster: Login successful");
+      // console.log("Toaster: Login successful");
       window.location.href = '/'; // forces re-evaluation of AllRoutes
     } catch (error) {
       const serverError = error?.response?.data?.message;
