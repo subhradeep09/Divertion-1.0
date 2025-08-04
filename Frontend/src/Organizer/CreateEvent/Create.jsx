@@ -1,255 +1,138 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { organizerAxios } from '../../utils/axiosInstance';
+import { showSuccess, showError } from '../../utils/toaster';
 
-const Create = () => {
-  const [isOnline, setIsOnline] = useState(false);
+const CreateEvent = () => {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    date: '',
+    location: '',
+    theme: 'custom',
+    isPublished: false,
+    isPaid: false,
+    price: 0,
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (name === 'isPaid') {
+      setForm((prevForm) => ({
+        ...prevForm,
+        isPaid: checked,
+        price: checked ? '' : 0  // clear price if switching to paid
+      }));
+    } else if (name === 'price') {
+      const numericPrice = Number(value);
+      setForm((prevForm) => ({
+        ...prevForm,
+        price: isNaN(numericPrice) ? '' : numericPrice
+      }));
+    } else {
+      const val = type === 'checkbox' ? checked : value;
+      setForm((prevForm) => ({
+        ...prevForm,
+        [name]: val
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await organizerAxios.post('/events', form);
+      showSuccess('Event created successfully!');
+      navigate('/organizer/my-events');
+    } catch (error) {
+      const msg = error?.response?.data?.message || 'Failed to create event';
+      showError(msg);
+    }
+  };
+
   return (
-    <div className="bg-[#0f0c29] text-white min-h-screen p-8 relative overflow-hidden">
-      <div className="h-16"></div>
-      {/* Pink glowing background */}
-      <div
-        className="pointer-events-none absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-pink-500 opacity-30 blur-3xl z-0"
-        style={{ filter: "blur(120px)" }}
-      ></div>
-      <div
-        className="pointer-events-none absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full bg-pink-400 opacity-25 blur-3xl z-0"
-        style={{ filter: "blur(100px)" }}
-      ></div>
-      <div
-        className="pointer-events-none absolute bottom-0 left-1/2 w-[350px] h-[350px] rounded-full bg-fuchsia-500 opacity-20 blur-3xl z-0"
-        style={{ filter: "blur(90px)" }}
-      ></div>
-
-      <div className="relative z-10 space-y-12">
-        {/* Basic Info */}
-        <fieldset className="border border-pink-600 rounded-lg p-6">
-          <legend className="text-pink-400 font-semibold text-lg">📝 Basic Info</legend>
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <input
-              type="text"
-              placeholder="Event Title"
-              className="bg-transparent border border-pink-300 text-white p-2 rounded"
-            />
-            <input
-              type="file"
-              className="bg-transparent border border-pink-300 text-white p-2 rounded"
-            />
-            <textarea
-              placeholder="Description"
-              className="md:col-span-2 bg-transparent border border-pink-300 text-white p-2 rounded h-32"
-            />
-            <input
-              type="text"
-              placeholder="Tags (comma separated, e.g., music, outdoor, tech)"
-              className="bg-transparent border border-pink-300 text-white p-2 rounded md:col-span-2"
-            />
+    <div className="min-h-screen bg-[#0f0c29] bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white p-8">
+      <div className="max-w-4xl mx-auto bg-[#1a1a2e] p-8 rounded-lg shadow-md">
+        <h2 className="text-3xl font-bold mb-6 text-pink-400">Create New Event</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            name="title"
+            placeholder="Event Title"
+            className="w-full p-2 bg-[#0f0c29] rounded border border-pink-500"
+            value={form.title}
+            onChange={handleChange}
+            required
+          />
+          <textarea
+            name="description"
+            placeholder="Description"
+            rows="4"
+            className="w-full p-2 bg-[#0f0c29] rounded border border-pink-500"
+            value={form.description}
+            onChange={handleChange}
+          />
+          <input
+            type="datetime-local"
+            name="date"
+            className="w-full p-2 bg-[#0f0c29] rounded border border-pink-500"
+            value={form.date}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="text"
+            name="location"
+            placeholder="Location"
+            className="w-full p-2 bg-[#0f0c29] rounded border border-pink-500"
+            value={form.location}
+            onChange={handleChange}
+            required
+          />
+          <select
+            name="theme"
+            className="w-full p-2 bg-[#0f0c29] rounded border border-pink-500"
+            value={form.theme}
+            onChange={handleChange}
+          >
+            {['business', 'music', 'tech', 'art', 'sports', 'education', 'health', 'custom'].map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+          <div className="flex items-center space-x-4">
+            <label className="flex items-center">
+              <input type="checkbox" name="isPublished" checked={form.isPublished} onChange={handleChange} />
+              <span className="ml-2">Published</span>
+            </label>
+            <label className="flex items-center">
+              <input type="checkbox" name="isPaid" checked={form.isPaid} onChange={handleChange} />
+              <span className="ml-2">Paid Event</span>
+            </label>
           </div>
-        </fieldset>
-
-        {/* Location Details */}
-        <fieldset className="border border-pink-600 rounded-lg p-6">
-          <legend className="text-pink-400 font-semibold text-lg">📍 Location Details</legend>
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <div className="md:col-span-2">
-              <div className="flex items-center justify-start mb-4">
-                <label htmlFor="eventMode" className="text-pink-200 font-medium mr-4">Event Mode:</label>
-                <div className="flex items-center space-x-2">
-                  <button
-                    className={`px-4 py-1 rounded-full transition ${
-                      isOnline ? 'bg-pink-200 text-pink-800' : 'bg-pink-600 text-white'
-                    }`}
-                    onClick={() => setIsOnline(false)}
-                  >
-                    Offline
-                  </button>
-                  <button
-                    className={`px-4 py-1 rounded-full transition ${
-                      isOnline ? 'bg-pink-600 text-white' : 'bg-pink-200 text-pink-800'
-                    }`}
-                    onClick={() => setIsOnline(true)}
-                  >
-                    Online
-                  </button>
-                </div>
-              </div>
-              {isOnline ? (
-                <input
-                  type="text"
-                  placeholder="Platform Name (e.g., Zoom, Google Meet)"
-                  className="bg-transparent border border-pink-300 text-white p-2 rounded w-full"
-                />
-              ) : (
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Venue Name"
-                    className="bg-transparent border border-pink-300 text-white p-2 rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Address"
-                    className="bg-transparent border border-pink-300 text-white p-2 rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="City"
-                    className="bg-transparent border border-pink-300 text-white p-2 rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="State"
-                    className="bg-transparent border border-pink-300 text-white p-2 rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Zip Code"
-                    className="bg-transparent border border-pink-300 text-white p-2 rounded md:col-span-2"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </fieldset>
-
-        {/* Date & Time */}
-        <fieldset className="border border-pink-600 rounded-lg p-6">
-          <legend className="text-pink-400 font-semibold text-lg">⏰ Date &amp; Time</legend>
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
-            <div className="flex flex-col">
-              <label className="text-pink-300 text-sm mb-1">Start Date</label>
-              <input
-                type="date"
-                className="bg-transparent border border-pink-300 text-white p-2 rounded"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-pink-300 text-sm mb-1">Start Time</label>
-              <input
-                type="time"
-                className="bg-transparent border border-pink-300 text-white p-2 rounded"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-pink-300 text-sm mb-1">End Date</label>
-              <input
-                type="date"
-                className="bg-transparent border border-pink-300 text-white p-2 rounded"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-pink-300 text-sm mb-1">End Time</label>
-              <input
-                type="time"
-                className="bg-transparent border border-pink-300 text-white p-2 rounded"
-              />
-            </div>
-            <div className="md:col-span-2 mt-4 text-right">
-              <button
-                className="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded shadow transition"
-                onClick={() => {
-                  // This would eventually open a modal or redirect to the calendar view
-                  alert('Check calendar for scheduling conflicts.');
-                }}
-              >
-                📅 View Calendar for Conflicts
-              </button>
-            </div>
-          </div>
-        </fieldset>
-
-        {/* Tickets & Pricing */}
-        <fieldset className="border border-pink-600 rounded-lg p-6">
-          <legend className="text-pink-400 font-semibold text-lg">🎟️ Tickets &amp; Pricing</legend>
-          <div className="grid md:grid-cols-2 gap-4 mt-4">
+          {form.isPaid && (
             <input
               type="number"
-              min="0"
-              placeholder="Total Tickets"
-              className="bg-transparent border border-pink-300 text-white p-2 rounded"
+              name="price"
+              placeholder="Price"
+              className="w-full p-2 bg-[#0f0c29] rounded border border-pink-500"
+              value={form.price}
+              onChange={handleChange}
+              min="1"
+              required
             />
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Ticket Price (USD)"
-              className="bg-transparent border border-pink-300 text-white p-2 rounded"
-            />
-            <input
-              type="number"
-              min="0"
-              placeholder="Max Tickets per Person"
-              className="bg-transparent border border-pink-300 text-white p-2 rounded"
-            />
-            <select className="bg-transparent border border-pink-300 text-white p-2 rounded">
-              <option value="">Ticket Type</option>
-              <option value="regular">Regular</option>
-              <option value="vip">VIP</option>
-              <option value="free">Free</option>
-            </select>
-          </div>
-        </fieldset>
-
-        {/* Settings */}
-        <fieldset className="border border-pink-600 rounded-lg p-6">
-          <legend className="text-pink-400 font-semibold text-lg">⚙️ Settings</legend>
-          <div className="grid md:grid-cols-2 gap-4 mt-4 items-center">
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="public"
-                className="accent-pink-500 w-5 h-5"
-              />
-              <label htmlFor="public" className="text-pink-200">
-                Public Event
-              </label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="age"
-                className="accent-pink-500 w-5 h-5"
-              />
-              <label htmlFor="age" className="text-pink-200">
-                18+ Only
-              </label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="featured"
-                className="accent-pink-500 w-5 h-5"
-              />
-              <label htmlFor="featured" className="text-pink-200">
-                Feature Event
-              </label>
-            </div>
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="recurring"
-                className="accent-pink-500 w-5 h-5"
-              />
-              <label htmlFor="recurring" className="text-pink-200">
-                Recurring Event
-              </label>
-            </div>
-          </div>
-        </fieldset>
-
-        {/* Publish Actions */}
-        <fieldset className="border border-pink-600 rounded-lg p-6">
-          <legend className="text-pink-400 font-semibold text-lg">🚀 Publish Actions</legend>
-          <div className="flex gap-6 mt-4">
-            <button className="bg-pink-600 hover:bg-pink-700 transition text-white font-bold py-2 px-6 rounded shadow">
-              Publish Event
-            </button>
-            <button className="bg-transparent border border-pink-400 text-pink-300 font-bold py-2 px-6 rounded hover:bg-pink-900 transition">
-              Save as Draft
-            </button>
-          </div>
-        </fieldset>
+          )}
+          <button
+            type="submit"
+            className="w-full py-2 bg-pink-500 hover:bg-pink-600 rounded font-semibold"
+          >
+            Create Event
+          </button>
+        </form>
       </div>
     </div>
   );
 };
 
-export default Create;
+export default CreateEvent;
