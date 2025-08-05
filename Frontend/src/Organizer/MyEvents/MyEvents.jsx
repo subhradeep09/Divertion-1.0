@@ -1,6 +1,5 @@
 import React from 'react';
 import EventStats from './EventOverview';
-import EventFilter from '../OrganizerComponents/EventFilter';
 import OrganizerEventList from './EventList';
 import EventCalendar from '../../components/Calendar';
 
@@ -18,14 +17,7 @@ const MyEvents = () => {
 
       {/* Filter + Event List */}
       <section>
-        <div className="flex flex-col lg:flex-row gap-3">
-          <div className="w-full lg:w-1/3">
-            <EventFilter />
-          </div>
-          <div className="w-full lg:w-2/3">
-            <OrganizerEventList />
-          </div>
-        </div>
+        <OrganizerEventList />
       </section>
 
       {/* Calendar View */}

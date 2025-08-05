@@ -1,12 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaCalendarAlt, FaClock, FaFileAlt, FaHourglassEnd } from 'react-icons/fa';
+import { organizerAxios } from '../../utils/axiosInstance';
 
 const EventOverview = () => {
+  const [statsData, setStatsData] = useState({
+    totalEvents: 0,
+    upcomingEvents: 0,
+    drafts: 0,
+    expiredEvents: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [upcomingRes, pastRes] = await Promise.all([
+          organizerAxios.get('/events/upcoming'),
+          organizerAxios.get('/events/past')
+        ]);
+
+        const upcomingEvents = Array.isArray(upcomingRes.data.message) ? upcomingRes.data.message.length : 0;
+        const expiredEvents = Array.isArray(pastRes.data.message) ? pastRes.data.message.length : 0;
+        const totalEvents = upcomingEvents + expiredEvents;
+
+        setStatsData({
+          totalEvents,
+          upcomingEvents,
+          drafts: 0, // TODO: Fetch drafts if needed
+          expiredEvents
+        });
+      } catch (error) {
+        console.error('Failed to fetch event stats:', error);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const stats = [
-    { label: 'Total Events', icon: <FaCalendarAlt />, value: 32, color: 'from-pink-500 to-pink-700' },
-    { label: 'Upcoming Events', icon: <FaClock />, value: 12, color: 'from-purple-500 to-purple-700' },
-    { label: 'Drafts', icon: <FaFileAlt />, value: 5, color: 'from-blue-500 to-blue-700' },
-    { label: 'Expired Events', icon: <FaHourglassEnd />, value: 15, color: 'from-red-500 to-red-700' }
+    { label: 'Total Events', icon: <FaCalendarAlt />, value: statsData.totalEvents, color: 'from-pink-500 to-pink-700' },
+    { label: 'Upcoming Events', icon: <FaClock />, value: statsData.upcomingEvents, color: 'from-purple-500 to-purple-700' },
+    { label: 'Drafts', icon: <FaFileAlt />, value: statsData.drafts, color: 'from-blue-500 to-blue-700' },
+    { label: 'Expired Events', icon: <FaHourglassEnd />, value: statsData.expiredEvents, color: 'from-red-500 to-red-700' }
   ];
 
   return (
