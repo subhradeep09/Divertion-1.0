@@ -15,9 +15,33 @@ const eventSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    startTime: {
+      type: String, // e.g., "14:00" in 24-hour format
+      required: true,
+    },
     location: {
       type: String,
       required: true,
+    },
+    venueDetails: {
+      type: String,
+      trim: true,
+    },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
+    eventLink: {
+      type: String,
+      trim: true,
+    },
+    capacity: {
+      type: Number,
+      default: 0,
+    },
+    bannerImage: {
+      type: String, // URL to the image
+      trim: true,
     },
     isPublished: {
       type: Boolean,
@@ -33,7 +57,16 @@ const eventSchema = new mongoose.Schema(
     },
     theme: {
       type: String,
-      enum: ['business', 'music', 'tech', 'art', 'sports', 'education', 'health', 'custom'],
+      enum: [
+        'business',
+        'music',
+        'tech',
+        'art',
+        'sports',
+        'education',
+        'health',
+        'custom',
+      ],
       default: 'custom',
     },
     organizer: {
