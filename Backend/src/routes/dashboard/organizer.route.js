@@ -4,7 +4,8 @@ import {
   updateEvent,
   viewUpcomingEvents,
   viewPastEvents,
-  deleteEvent
+  deleteEvent,
+  eventStatus
 } from "../../controllers/dashboard/organizer.controller.js";
 import { verifyJWT } from "../../middlewares/auth.middleware.js";
 import { restrictTo } from "../../middlewares/role.middleware.js";
@@ -18,5 +19,6 @@ router.put("/events/:eventId",verifyJWT,restrictTo("organizer"),upload.single("b
 router.get("/events/upcoming",verifyJWT,restrictTo("organizer"),viewUpcomingEvents);
 router.get("/events/past",verifyJWT,restrictTo("organizer"),viewPastEvents);
 router.delete("/events/:eventId",verifyJWT,restrictTo("organizer"),deleteEvent);
+router.get("/events/event-status",verifyJWT,restrictTo("organizer"),eventStatus);
 
 export default router;
