@@ -43,9 +43,18 @@ const eventSchema = new mongoose.Schema(
       type: String, // URL to the image
       trim: true,
     },
+    status: {
+      type: String,
+      enum: ["PENDING", "APPROVED", "REJECTED"],
+      default: "PENDING"
+    },
     isPublished: {
       type: Boolean,
-      default: false,
+      default: false
+    },
+    rejectionReason: {
+      type: String,
+      default: ""
     },
     isPaid: {
       type: Boolean,

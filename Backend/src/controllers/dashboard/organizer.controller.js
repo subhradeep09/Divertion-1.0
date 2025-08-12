@@ -17,19 +17,18 @@ export const createEvent = async (req, res, next) => {
     } = req.body;
 
     const isOnline = req.body.isOnline === "true";
-    const isPublished = req.body.isPublished === "true";
     const isPaid = req.body.isPaid === "true";
     const capacity = parseInt(req.body.capacity) || 0;
     const price = parseInt(req.body.price) || 0;
 
-    console.log("Parsed form data:", {
-      ...req.body,
-      isOnline,
-      isPublished,
-      isPaid,
-      capacity,
-      price,
-    });
+    // console.log("Parsed form data:", {
+    //   ...req.body,
+    //   isOnline,
+    //   isPublished,
+    //   isPaid,
+    //   capacity,
+    //   price,
+    // });
 
     // Validation
     if (!title || !date || !location || !startTime) {
@@ -68,10 +67,12 @@ export const createEvent = async (req, res, next) => {
       capacity,
       bannerImage: imageUrl,
       theme,
-      isPublished,
       isPaid,
       price: isPaid ? price : 0,
       organizer: req.user._id,
+
+      status: "PENDING", 
+      isPublished: false
     });
 
     return res
@@ -109,7 +110,6 @@ export const updateEvent = async (req, res, next) => {
       capacity,
       bannerImage, // fallback if no file uploaded
       theme,
-      isPublished,
       isPaid,
       price,
     } = req.body;
@@ -141,7 +141,6 @@ export const updateEvent = async (req, res, next) => {
     if (eventLink !== undefined) event.eventLink = isOnline ? eventLink : "";
     if (capacity !== undefined) event.capacity = capacity;
     if (theme !== undefined) event.theme = theme;
-    if (isPublished !== undefined) event.isPublished = isPublished;
     if (isPaid !== undefined) event.isPaid = isPaid;
     if (price !== undefined) event.price = isPaid ? price : 0;
 
@@ -167,6 +166,8 @@ export const viewUpcomingEvents = async (req, res, next) => {
     }
     const upcomingEvents = await Event.find({
       organizer: organizerId,
+      isPublished: true,
+      status: "APPROVED",
       date: { $gte: new Date() },
     }).sort({ date: 1 });
     return res
@@ -185,6 +186,8 @@ export const viewPastEvents = async (req, res, next) => {
     }
     const pastEvents = await Event.find({
       organizer: organizerId,
+      isPublished: true,
+      status: "APPROVED",
       date: { $lt: new Date() },
     }).sort({ date: -1 });
     return res
@@ -229,3 +232,36 @@ export const deleteEvent = async (req, res, next) => {
     next(error);
   }
 };
+
+export const eventStatus = async (req, res, next) => {
+  try {
+    const organizerId = req.user?._id;
+    console.log("I am inside event-status");
+    if (!organizerId) {
+      throw new ApiError(404, "Organizer not found");
+    }
+
+    // Fetch all events created by this organizer
+    const events = await Event.find({ organizer: organizerId })
+      .select("title date status rejectionReason createdAt updatedAt")
+      .sort({ createdAt: -1 });
+
+    // Format response to ensure rejectionReason only appears if rejected
+    const eventHistory = events.map(event => ({
+      _id: event._id,
+      title: event.title,
+      date: event.date,
+      status: event.status,
+      rejectionReason: event.status === "REJECTED" ? event.rejectionReason : null,
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt
+    }));
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, eventHistory, "Event request history retrieved successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+
