@@ -1,57 +1,118 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { toast } from "react-hot-toast";
+import organizerAxios from "../../utils/organizerAxios";
 
-const OrganizerEventCard = ({ event, onDelete }) => {
-  const formattedDate = new Date(event.date).toLocaleDateString();
-  const formattedTime = new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const OrganizerEventCard = ({ event, onDelete, isPast }) => {
+  const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleEdit = () => {
+    navigate(`/update-event/${event._id}`, { state: { event } });
+  };
+
+  const handleDelete = () => {
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await organizerAxios.delete(`/events/${event._id}`);
+      toast.success("Event deleted successfully");
+      if (onDelete) onDelete(event._id);
+      navigate(0);
+    } catch (error) {
+      console.error("Failed to delete event", error);
+      toast.error("Failed to delete event");
+    } finally {
+      setShowConfirm(false);
+    }
+  };
+
+  const getStatusBadge = () => {
+    switch (event.status) {
+      case "APPROVED":
+        return <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">Approved</span>;
+      case "PENDING":
+        return <span className="bg-yellow-600 text-white text-xs px-2 py-1 rounded-full">Pending</span>;
+      case "REJECTED":
+        return <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">Rejected</span>;
+      default:
+        return <span className="bg-gray-600 text-white text-xs px-2 py-1 rounded-full">Unknown</span>;
+    }
+  };
 
   return (
-    <div className="bg-pink-200/10 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-pink-500 p-5 transition duration-300 hover:shadow-pink-400">
-      <div className="flex flex-col gap-4">
-        <img
-          src={event.banner || 'https://via.placeholder.com/150'}
-          alt={event.title ? `Banner for ${event.title}` : 'Event Banner'}
-          className="w-full h-48 object-cover rounded-lg border border-pink-400"
-        />
-        <div className="flex-1 text-white space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-pink-300">{event.title}</h3>
-            <span className={`px-3 py-1 text-xs rounded-full font-semibold ${
-              event.status === 'Published' ? 'bg-green-500 text-white' : 'bg-yellow-400 text-black'
-            }`}>
-              {event.status}
-            </span>
-          </div>
-          <p className="text-sm text-pink-200">📍 {event.location}</p>
-          <p className="text-sm text-pink-200">🗓️ {formattedDate} at {formattedTime}</p>
-          <p className="text-sm text-pink-200">
-            💵 Price: {event.isPaid && typeof event.price === 'number' ? `₹${event.price}` : 'Free'}
+    <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow h-full flex flex-col">
+      <img
+        src={event.bannerImage}
+        alt={event.title}
+        className="w-full h-48 object-cover"
+      />
+      <div className="p-4 flex-grow">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-lg font-semibold text-white">{event.title}</h3>
+          {getStatusBadge()}
+        </div>
+        <p className="text-pink-400 text-sm mb-2">
+          {format(new Date(event.date), "MMM dd, yyyy")} • {event.startTime}
+        </p>
+        <p className="text-gray-300 text-sm mb-2">{event.location}</p>
+        <p className="text-gray-400 text-sm mb-2">
+          {event.isOnline ? "Online Event" : "In-person Event"}
+        </p>
+        {event.isPaid && (
+          <p className="text-gray-300 text-sm">
+            <span className="font-medium">Price:</span> ${event.price}
           </p>
-
-          <div className="mt-4 flex flex-wrap gap-2 justify-between">
-            <button className="px-3 py-1 text-sm border border-pink-400 text-pink-300 rounded hover:bg-pink-400 hover:text-white transition">View</button>
-            <Link
-              to={`/update-event/${event._id}`}
-              className="px-3 py-1 text-sm border border-pink-400 text-pink-300 rounded hover:bg-pink-400 hover:text-white transition"
-            >
-              Edit
-            </Link>
-            <button className="px-3 py-1 text-sm border border-pink-400 text-pink-300 rounded hover:bg-pink-400 hover:text-white transition">Analytics</button>
-            <button className="px-3 py-1 text-sm border border-pink-400 text-pink-300 rounded hover:bg-pink-400 hover:text-white transition">Duplicate</button>
-            <button
-              onClick={() => {
-                console.log('Delete button clicked for event:', event._id);
-                if (onDelete) {
-                  onDelete(event._id);
-                }
-              }}
-              className="px-3 py-1 text-sm border border-red-500 text-red-400 rounded hover:bg-red-500 hover:text-white transition"
-            >
-              Delete
-            </button>
-          </div>
+        )}
+      </div>
+      <div className="px-4 py-3 bg-gray-900">
+        <div className="flex justify-between space-x-2">
+          <button
+            onClick={handleEdit}
+            className="text-white bg-pink-600 hover:bg-pink-700 px-3 py-1 rounded text-sm transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={handleDelete}
+            className="text-white bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm transition-colors"
+          >
+            Delete
+          </button>
+          <Link
+            to={`/event-details/${event._id}`}
+            className="text-white bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm transition-colors text-center"
+          >
+            View
+          </Link>
         </div>
       </div>
+      {showConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+        >
+          <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-xs border border-gray-700 flex flex-col items-center">
+            <p className="text-white text-center mb-4">Are you sure you want to delete this event?</p>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={confirmDelete}
+                className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-1 rounded transition-colors"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

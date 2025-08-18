@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import AppRouter from './layouts/AppRouter';
 import AttendeeRoutes from '../src/Attendee/AttendeeRoute/AttendeeRoute';
 import OrganizerRoutes from './Organizer/OrganizerRoute/OrganizerRoute';
+import AdminRoutes from './Admin/AdminRoutes/AdminRouter';
 import { Routes, Route } from 'react-router-dom';
 import PrivacyPolicy from './pages/legals/privacypolicy';
 import CookiePolicy from './pages/legals/cookiePolicy';
@@ -37,7 +38,8 @@ const AllRoute = () => {
       {!user && <Route path="/*" element={<AppRouter />} />}
       {user && user.role === 'attendee' && <Route path="/*" element={<AttendeeRoutes />} />}
       {user && user.role === 'organizer' && <Route path="/*" element={<OrganizerRoutes />} />}
-      {user && user.role !== 'attendee' && user.role !== 'organizer' && <Route path="/*" element={<AppRouter />} />}
+      {user && user.role === 'admin' && <Route path="/*" element={<AdminRoutes />} />}
+      {user && user.role !== 'attendee' && user.role !== 'organizer' && user.role !== 'admin' && <Route path="/*" element={<AppRouter />} />}
     </Routes>
   );
 };
