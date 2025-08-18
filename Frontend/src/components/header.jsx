@@ -82,10 +82,10 @@ const Header = () => {
   };
 
   const adminLinks = [
-    { label: 'Dashboard', href: '/admin/dashboard' },
-    { label: 'Manage Users', href: '/admin/users' },
-    { label: 'Manage Events', href: '/admin/events' },
-    { label: 'Reports', href: '/admin/reports' },
+    { label: 'Dashboard', href: '/' },
+    { label: 'Manage Users', href: '/manage-users' },
+    { label: 'Manage Events', href: '/manage-events' },
+    { label: 'Reports', href: '/reports' },
   ];
 
   const organizerLinks = [
