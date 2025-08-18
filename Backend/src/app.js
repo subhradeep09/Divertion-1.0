@@ -4,9 +4,10 @@ import cors from "cors";
 import authRouter from "./routes/auth.route.js";
 import errorHandler from "./utils/errorHandler.js";
 import { verifyJWT } from "./middlewares/auth.middleware.js";
+import userDetails from "./routes/user.route.js"
 import adminDashboardRouter from "./routes/dashboard/admin.route.js";
 import organizerDashboardRouter from "./routes/dashboard/organizer.route.js";
-// import userDashboardRouter from "./routes/dashboard/user.route.js";
+import userDashboardRouter from "./routes/dashboard/user.route.js";
 import cookieParser from 'cookie-parser';
 
 
@@ -27,9 +28,10 @@ app.use(express.static('public'));
 
 // Routes - make sure this comes AFTER all middleware
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/user-details', userDetails);
 app.use('/api/v1/dashboard/admin', adminDashboardRouter);
 app.use('/api/v1/dashboard/organizer', organizerDashboardRouter);
-// app.use('/api/v1/dashboard/user', userDashboardRouter);
+app.use('/api/v1/dashboard/attendee', userDashboardRouter);
 
 
 // 404 Handler

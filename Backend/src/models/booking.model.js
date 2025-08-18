@@ -14,11 +14,15 @@ const bookingSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'paid', 'free'],
+      enum: ['PENDING', 'SUCCESS','FAILED','FREE'],
       required: true,
     },
     qrCodeUrl: {
       type: String,
+    },
+    ticketId: {
+      type: String,
+    unique: true,
     },
     bookedAt: {
       type: Date,
@@ -27,6 +31,7 @@ const bookingSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+bookingSchema.index({ user: 1, event: 1 }, { unique: true });
 
 const Booking = mongoose.model('Booking', bookingSchema);
 
