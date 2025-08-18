@@ -21,16 +21,7 @@ export const createEvent = async (req, res, next) => {
     const capacity = parseInt(req.body.capacity) || 0;
     const price = parseInt(req.body.price) || 0;
 
-    // console.log("Parsed form data:", {
-    //   ...req.body,
-    //   isOnline,
-    //   isPublished,
-    //   isPaid,
-    //   capacity,
-    //   price,
-    // });
 
-    // Validation
     if (!title || !date || !location || !startTime) {
       throw new ApiError(
         400,
@@ -98,7 +89,7 @@ export const updateEvent = async (req, res, next) => {
       throw new ApiError(404, "Event not found or unauthorized");
     }
 
-    const {
+    let {
       title,
       description,
       date,
@@ -114,39 +105,53 @@ export const updateEvent = async (req, res, next) => {
       price,
     } = req.body;
 
-    // Get uploaded image from multer-cloudinary if provided
+    // Parse booleans
+    if (isOnline !== undefined) {
+      isOnline = isOnline === "true" || isOnline === true;
+    }
+    if (isPaid !== undefined) {
+      isPaid = isPaid === "true" || isPaid === true;
+    }
+    capacity = capacity ? parseInt(capacity, 10) : undefined;
+    price = price ? parseInt(price) : undefined;
+
     const imageUrl = req.file?.path;
 
-    // Validate price if isPaid is true
+    // Validate inputs
     if (isPaid && (typeof price !== "number" || price <= 0)) {
-      throw new ApiError(
-        400,
-        "Price must be a positive number for paid events"
-      );
+      throw new ApiError(400, "Price must be a positive number for paid events");
     }
 
-    // Validate eventLink if event is online
     if (isOnline && !eventLink) {
       throw new ApiError(400, "Event link is required for online events");
     }
 
-    // Update fields conditionally
-    if (title !== undefined) event.title = title;
-    if (description !== undefined) event.description = description;
-    if (date !== undefined) event.date = date;
-    if (startTime !== undefined) event.startTime = startTime;
-    if (location !== undefined) event.location = location;
-    if (venueDetails !== undefined) event.venueDetails = venueDetails;
+    // ✅ Check status rules
+    if (event.status === "PENDING") {
+      // Organizer can edit everything before approval
+      if (title !== undefined) event.title = title;
+      if (description !== undefined) event.description = description;
+      if (date !== undefined) event.date = date;
+      if (startTime !== undefined) event.startTime = startTime;
+      if (theme !== undefined) event.theme = theme;
+      if (isPaid !== undefined) event.isPaid = isPaid;
+      if (price !== undefined) {
+        if(isPaid || event.price) event.price = price;
+        else {
+          event.price = 0;
+        }
+      }
+    } else if (event.status === "APPROVED") {
+      if (title || description || date || startTime || theme || isPaid !== undefined || price !== undefined || location || venueDetails) {
+        throw new ApiError(403, "You cannot edit these fields after approval. Contact admin for changes.");
+      }
+    }
+
     if (isOnline !== undefined) event.isOnline = isOnline;
     if (eventLink !== undefined) event.eventLink = isOnline ? eventLink : "";
     if (capacity !== undefined) event.capacity = capacity;
-    if (theme !== undefined) event.theme = theme;
-    if (isPaid !== undefined) event.isPaid = isPaid;
-    if (price !== undefined) event.price = isPaid ? price : 0;
-
-    // Handle banner image update
     if (bannerImage !== undefined) event.bannerImage = bannerImage;
-    if (imageUrl) event.bannerImage = imageUrl; // uploaded image takes priority
+    if (imageUrl) event.bannerImage = imageUrl;
 
     await event.save();
 
@@ -157,6 +162,7 @@ export const updateEvent = async (req, res, next) => {
     next(error);
   }
 };
+
 
 export const viewUpcomingEvents = async (req, res, next) => {
   try {
@@ -236,7 +242,7 @@ export const deleteEvent = async (req, res, next) => {
 export const eventStatus = async (req, res, next) => {
   try {
     const organizerId = req.user?._id;
-    console.log("I am inside event-status");
+    // console.log("I am inside event-status");
     if (!organizerId) {
       throw new ApiError(404, "Organizer not found");
     }
@@ -260,6 +266,25 @@ export const eventStatus = async (req, res, next) => {
     return res
       .status(200)
       .json(new ApiResponse(200, eventHistory, "Event request history retrieved successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const viewToEditEvents = async (req, res, next) => {
+  try {
+    const organizerId = req.user._id;
+    if (!organizerId) {
+      throw new ApiError(404, "Organizer not found");
+    }
+    const toEditEvents = await Event.find({
+      organizer: organizerId,
+      isPublished: false,
+      status: "PENDING",
+    }).sort({ createdAt: -1 });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, toEditEvents, "To edit events"));
   } catch (error) {
     next(error);
   }
