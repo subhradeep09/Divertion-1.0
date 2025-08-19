@@ -1,34 +1,33 @@
-
-
 import React, { useState } from 'react';
 import EventTable from './EventTable';
 import EventDetailsModal from './EventDetailsModal';
+import { useParams } from 'react-router-dom';
 
 const ManageEvents = () => {
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const { eventId } = useParams();
+  const [eventStatusUpdates, setEventStatusUpdates] = useState({});
 
-  const handleEdit = (event) => {
-    alert(`Edit event: ${event.title}`);
-  };
-
-  const handleDelete = (event) => {
-    alert(`Delete event: ${event.title}`);
-  };
-
-  const handleToggleStatus = (event) => {
-    alert(`Toggle status for event: ${event.title}`);
+  const handleStatusUpdate = (updatedEventId, newStatus, reason) => {
+    setEventStatusUpdates(prev => ({
+      ...prev,
+      [updatedEventId]: { status: newStatus, rejectionReason: reason }
+    }));
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Manage Events</h1>
-      <EventTable />
-      {selectedEvent && (
-        <EventDetailsModal
-          event={selectedEvent}
-          onClose={() => setSelectedEvent(null)}
-        />
-      )}
+    <div className="p-6 bg-black min-h-screen text-white">
+      <h1 className="text-3xl font-bold mb-6 text-pink-500">Manage Events</h1>
+      <div className="bg-gray-900 rounded-lg p-4 shadow-lg">
+        {eventId ? (
+          <EventDetailsModal
+            onStatusUpdate={handleStatusUpdate}
+          />
+        ) : (
+          <EventTable
+            eventStatusUpdates={eventStatusUpdates}
+          />
+        )}
+      </div>
     </div>
   );
 };
