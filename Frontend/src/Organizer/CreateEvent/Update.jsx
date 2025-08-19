@@ -90,23 +90,33 @@ const UpdateEvent = () => {
 
       const data = new FormData();
 
-      // Append fields with proper types
-      data.append("title", formData.title);
-      data.append("description", formData.description);
-      data.append("date", formData.date);
-      data.append("startTime", formData.startTime);
-      data.append("location", formData.location);
-      data.append("venueDetails", formData.venueDetails);
-      data.append("capacity", Number(formData.capacity));
-      data.append("isOnline", formData.isOnline);
-      data.append("eventLink", formData.eventLink);
-      data.append("isPaid", formData.isPaid);
-      data.append("price", Number(formData.price));
-      data.append("theme", formData.theme);
-      data.append("isPublished", formData.isPublished);
+      if (event?.status === "APPROVED") {
+        // Only allowed fields
+        data.append("isOnline", formData.isOnline);
+        data.append("eventLink", formData.eventLink);
+        data.append("capacity", Number(formData.capacity));
+        if (formData.bannerImage) {
+          data.append("bannerImage", formData.bannerImage);
+        }
+      } else {
+        // Normal flow (PENDING / not approved yet)
+        data.append("title", formData.title);
+        data.append("description", formData.description);
+        data.append("date", formData.date);
+        data.append("startTime", formData.startTime);
+        data.append("location", formData.location);
+        data.append("venueDetails", formData.venueDetails);
+        data.append("capacity", Number(formData.capacity));
+        data.append("isOnline", formData.isOnline);
+        data.append("eventLink", formData.eventLink);
+        data.append("isPaid", formData.isPaid);
+        data.append("price", Number(formData.price));
+        data.append("theme", formData.theme);
+        data.append("isPublished", formData.isPublished);
 
-      if (formData.bannerImage) {
-        data.append("bannerImage", formData.bannerImage);
+        if (formData.bannerImage) {
+          data.append("bannerImage", formData.bannerImage);
+        }
       }
 
       // Debug: Log FormData entries
@@ -147,6 +157,13 @@ const UpdateEvent = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Info for approved events */}
+            {event?.status === "APPROVED" && (
+              <div className="bg-yellow-600 text-white p-3 rounded-lg text-sm mb-4">
+                This event has been approved. Only <b>Online status</b>, <b>Event Link</b>, 
+                <b>Capacity</b>, and <b>Banner Image</b> can be updated.
+              </div>
+            )}
             {/* Banner Image Preview */}
             <div className="flex flex-col items-center">
               <div className="relative w-full h-48 rounded-lg overflow-hidden mb-4 border-2 border-dashed border-gray-600">
