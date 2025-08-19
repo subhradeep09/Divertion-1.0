@@ -1,38 +1,67 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import adminAxios from '../../utils/adminAxios';
 
+const EventTable = ({ eventStatusUpdates }) => {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-import React from 'react';
+  const fetchEvents = async () => {
+    try {
+      const res = await adminAxios.get('/events/event-management');
+      if (res.data && res.data.message) {
+        setEvents(res.data.message);
+      }
+    } catch (err) {
+      console.error("Failed to fetch events", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const EventTable = () => {
-  const events = [
-    { id: 1, title: 'Music Concert', date: '2025-09-01', type: 'Offline', status: 'Active' },
-    { id: 2, title: 'Webinar on AI', date: '2025-09-10', type: 'Online', status: 'Upcoming' },
-    { id: 3, title: 'Art Workshop', date: '2025-09-15', type: 'Offline', status: 'Cancelled' }
-  ];
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const getStatus = (eventId, currentStatus) => {
+    return eventStatusUpdates[eventId]?.status || currentStatus;
+  };
+
+  if (loading) return <div className="p-4 text-center text-pink-500">Loading events...</div>;
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white shadow rounded">
+      <table className="min-w-full text-white">
         <thead>
-          <tr>
-            <th className="px-4 py-2 border-b">ID</th>
-            <th className="px-4 py-2 border-b">Title</th>
-            <th className="px-4 py-2 border-b">Date</th>
-            <th className="px-4 py-2 border-b">Type</th>
-            <th className="px-4 py-2 border-b">Status</th>
-            <th className="px-4 py-2 border-b">Actions</th>
+          <tr className="bg-pink-600 text-black">
+            <th className="px-4 py-3 text-left">ID</th>
+            <th className="px-4 py-3 text-left">Title</th>
+            <th className="px-4 py-3 text-left">Date</th>
+            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">Organizer Email</th>
+            <th className="px-4 py-3 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {events.map((event) => (
-            <tr key={event.id}>
-              <td className="px-4 py-2 border-b">{event.id}</td>
-              <td className="px-4 py-2 border-b">{event.title}</td>
-              <td className="px-4 py-2 border-b">{event.date}</td>
-              <td className="px-4 py-2 border-b">{event.type}</td>
-              <td className="px-4 py-2 border-b">{event.status}</td>
-              <td className="px-4 py-2 border-b">
-                <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">Edit</button>
-                <button className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+          {events.map((event, idx) => (
+            <tr key={event._id} className="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+              <td className="px-4 py-3">{idx + 1}</td>
+              <td className="px-4 py-3">{event.title}</td>
+              <td className="px-4 py-3">{new Date(event.date).toLocaleDateString()}</td>
+              <td className="px-4 py-3">
+                <span className={`font-semibold ${getStatus(event._id, event.status) === 'APPROVED' ? 'text-green-400' : getStatus(event._id, event.status) === 'REJECTED' ? 'text-red-400' : 'text-yellow-400'}`}>
+                  {getStatus(event._id, event.status)}
+                </span>
+              </td>
+              <td className="px-4 py-3">{event.organizer?.email || "-"}</td>
+              <td className="px-4 py-3">
+                <button
+                  className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-1 px-3 rounded-lg transition-colors"
+                  onClick={() => navigate(`/events/${event._id}`)}
+                >
+                  Details
+                </button>
               </td>
             </tr>
           ))}

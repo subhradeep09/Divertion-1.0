@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import heroVideo from '../../assets/Hero.mp4';
+// import heroVideo from '../../assets/Hero.mp4';
 
 const textVariants = {
   hidden: { opacity: 0, y: 40 },
@@ -40,7 +40,7 @@ const Hero = () => (
       className="absolute inset-0 w-full h-full object-cover z-0 opacity-70"
       poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
     >
-      <source src={heroVideo} type="video/mp4" />
+      <source src="https://videos.pexels.com/video-files/2361938/2361938-uhd_2560_1440_30fps.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
     {/* Solid Theme Overlay */}
