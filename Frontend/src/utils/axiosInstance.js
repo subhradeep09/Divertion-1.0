@@ -33,8 +33,19 @@ axiosInstance.interceptors.response.use(
           {},
           { withCredentials: true }
         );
-        setAccessToken(data.accessToken);
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+
+        const newAccessToken = data?.data?.accessToken;
+        const newRefreshToken = data?.data?.refreshToken;
+
+        if (newAccessToken) {
+          setAccessToken(newAccessToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        }
+
+        if (newRefreshToken) {
+          localStorage.setItem("refreshToken", newRefreshToken);
+        }
+
         return axiosInstance(originalRequest);
       } catch (err) {
         console.error("Token refresh failed:", err);
