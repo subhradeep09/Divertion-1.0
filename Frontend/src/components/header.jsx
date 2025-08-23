@@ -20,7 +20,6 @@ const Header = () => {
           if (parsedUser && parsedUser.username) {
             // console.log("Parsed user set:", parsedUser);
             setUser(parsedUser);
-            showSuccess("Login successful");
           } else {
             console.warn("Parsed user is invalid or missing username:", parsedUser);
             localStorage.removeItem('user');
@@ -91,13 +90,13 @@ const Header = () => {
   const organizerLinks = [
     { label: 'My Events', href: '/' },
     { label: 'Create Event', href: '/create-event' },
-    { label: 'Registrations', href: '/organizer/registrations' },
+    { label: 'Registrations', href: '/registration' },
   ];
 
   const attendeeLinks = [
     { label: 'Home', href: '/' },
-    { label: 'Browse Events', href: '/events' },
-    { label: 'My Tickets', href: '/attendee/tickets' },
+    { label: 'Browse Events', href: '/view-events' },
+    { label: 'My Tickets', href: '/booking-history' },
   ];
 
   const navLinks = !user

@@ -37,13 +37,13 @@ const Hero = () => {
 
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <button
-            onClick={() => navigate('/events')}
+            onClick={() => navigate('/view-events')}
             className="px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-pink-600 text-white hover:from-pink-600 hover:to-pink-700 transition-transform hover:scale-105 shadow-md"
           >
             🔍 Browse Events
           </button>
           <button
-            onClick={() => navigate('/my-tickets')}
+            onClick={() => navigate('/booking-history')}
             className="px-6 py-3 rounded-full border border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white transition-transform hover:scale-105"
           >
             🗓 My Tickets

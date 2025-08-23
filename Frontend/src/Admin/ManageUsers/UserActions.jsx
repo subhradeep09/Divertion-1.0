@@ -1,27 +1,25 @@
-
-
-import React from 'react';
+import React from "react";
 
 const UserActions = ({ onEdit, onDelete, onToggleStatus }) => {
   return (
     <div className="flex space-x-2">
       <button
-        className="bg-blue-500 text-white px-2 py-1 rounded"
+        className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1 rounded-lg hover:scale-105 transition"
         onClick={onEdit}
       >
         Edit
       </button>
       <button
-        className="bg-red-500 text-white px-2 py-1 rounded"
+        className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-3 py-1 rounded-lg hover:scale-105 transition"
         onClick={onDelete}
       >
         Delete
       </button>
       <button
-        className="bg-green-500 text-white px-2 py-1 rounded"
+        className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-lg hover:scale-105 transition"
         onClick={onToggleStatus}
       >
-        Toggle Status
+        Toggle
       </button>
     </div>
   );
