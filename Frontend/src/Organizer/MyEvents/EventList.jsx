@@ -68,132 +68,199 @@ const EventList = () => {
     }
   };
 
+  const refreshEvents = () => {
+    fetchEvents();
+  };
+
   return (
-    <div className="container mx-auto px-4 py-25 bg-black">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-white">My Events</h1>
-        <button
-          onClick={() => navigate("/create-event")}
-          className="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-        >
-          Create New Event
-        </button>
+    <div className="min-h-screen bg-gray-950 py-25 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">My Events</h1>
+            <p className="text-gray-400">Manage all your events in one place</p>
+          </div>
+          <button
+            onClick={() => navigate("/create-event")}
+            className="mt-4 md:mt-0 bg-pink-600 hover:bg-pink-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Create New Event
+          </button>
+        </div>
+
+        {error && (
+          <div className="bg-red-900/30 border border-red-700 text-red-300 p-4 mb-8 rounded-lg flex items-center justify-between">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"></path>
+              </svg>
+              <span>{error}</span>
+            </div>
+            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="flex flex-wrap border-b border-gray-700">
+            <button
+              className={`py-3 px-6 font-medium text-sm md:text-base ${activeTab === "upcoming" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
+              onClick={() => setActiveTab("upcoming")}
+            >
+              Upcoming Events
+              <span className="ml-2 bg-gray-700 text-gray-300 text-xs py-1 px-2 rounded-full">
+                {upcomingEvents.length}
+              </span>
+            </button>
+            <button
+              className={`py-3 px-6 font-medium text-sm md:text-base ${activeTab === "past" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
+              onClick={() => setActiveTab("past")}
+            >
+              Past Events
+              <span className="ml-2 bg-gray-700 text-gray-300 text-xs py-1 px-2 rounded-full">
+                {pastEvents.length}
+              </span>
+            </button>
+            <button
+              className={`py-3 px-6 font-medium text-sm md:text-base ${activeTab === "toEdit" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
+              onClick={() => setActiveTab("toEdit")}
+            >
+              To Edit Events
+              <span className="ml-2 bg-gray-700 text-gray-300 text-xs py-1 px-2 rounded-full">
+                {toEditEvents.length}
+              </span>
+            </button>
+            <button
+              className={`py-3 px-6 font-medium text-sm md:text-base ${activeTab === "status" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
+              onClick={() => setActiveTab("status")}
+            >
+              Event Status
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "upcoming" && (
+          <div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="bg-gray-900 rounded-xl p-6 border border-gray-800 animate-pulse">
+                    <div className="h-6 bg-gray-800 rounded w-3/4 mb-4"></div>
+                    <div className="h-4 bg-gray-800 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-800 rounded w-5/6 mb-4"></div>
+                    <div className="h-10 bg-gray-800 rounded-lg"></div>
+                  </div>
+                ))}
+              </div>
+            ) : upcomingEvents.length === 0 ? (
+              <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-12 text-center border border-gray-700">
+                <div className="text-pink-500 text-6xl mb-4">🎭</div>
+                <h3 className="text-2xl font-semibold text-white mb-2">No upcoming events</h3>
+                <p className="text-gray-400 mb-6">You don't have any upcoming events yet.</p>
+                <button 
+                  onClick={() => navigate("/create-event")}
+                  className="px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors font-medium"
+                >
+                  Create Your First Event
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {upcomingEvents.map((event) => (
+                  <OrganizerEventCard
+                    key={event._id}
+                    event={event}
+                    onDelete={() => handleDelete(event._id)}
+                    onEdit={() => navigate(`/edit-event/${event._id}`)}
+                    onRefresh={refreshEvents}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "past" && (
+          <div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="bg-gray-900 rounded-xl p-6 border border-gray-800 animate-pulse">
+                    <div className="h-6 bg-gray-800 rounded w-3/4 mb-4"></div>
+                    <div className="h-4 bg-gray-800 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-800 rounded w-5/6 mb-4"></div>
+                    <div className="h-10 bg-gray-800 rounded-lg"></div>
+                  </div>
+                ))}
+              </div>
+            ) : pastEvents.length === 0 ? (
+              <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-12 text-center border border-gray-700">
+                <div className="text-pink-500 text-6xl mb-4">📅</div>
+                <h3 className="text-2xl font-semibold text-white mb-2">No past events</h3>
+                <p className="text-gray-400">You don't have any past events yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pastEvents.map((event) => (
+                  <OrganizerEventCard
+                    key={event._id}
+                    event={event}
+                    onDelete={() => handleDelete(event._id)}
+                    onEdit={() => navigate(`/edit-event/${event._id}`)}
+                    isPast
+                    onRefresh={refreshEvents}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "toEdit" && (
+          <div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="bg-gray-900 rounded-xl p-6 border border-gray-800 animate-pulse">
+                    <div className="h-6 bg-gray-800 rounded w-3/4 mb-4"></div>
+                    <div className="h-4 bg-gray-800 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-800 rounded w-5/6 mb-4"></div>
+                    <div className="h-10 bg-gray-800 rounded-lg"></div>
+                  </div>
+                ))}
+              </div>
+            ) : toEditEvents.length === 0 ? (
+              <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-12 text-center border border-gray-700">
+                <div className="text-pink-500 text-6xl mb-4">✏️</div>
+                <h3 className="text-2xl font-semibold text-white mb-2">No events to edit</h3>
+                <p className="text-gray-400">All your events are up to date.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {toEditEvents.map((event) => (
+                  <OrganizerEventCard
+                    key={event._id}
+                    event={event}
+                    onEdit={() => navigate(`/edit-event/${event._id}`)}
+                    onRefresh={refreshEvents}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "status" && <EventStatus />}
       </div>
-
-      {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
-          {error}
-        </div>
-      )}
-
-      <div className="mb-6">
-        <div className="flex border-b border-gray-700">
-          <button
-            className={`py-2 px-4 font-medium ${activeTab === "upcoming" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
-            onClick={() => setActiveTab("upcoming")}
-          >
-            Upcoming Events
-          </button>
-          <button
-            className={`py-2 px-4 font-medium ${activeTab === "past" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
-            onClick={() => setActiveTab("past")}
-          >
-            Past Events
-          </button>
-          <button
-            className={`py-2 px-4 font-medium ${activeTab === "toEdit" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
-            onClick={() => setActiveTab("toEdit")}
-          >
-            To Edit Events
-          </button>
-          <button
-            className={`py-2 px-4 font-medium ${activeTab === "status" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
-            onClick={() => setActiveTab("status")}
-          >
-            Event Status
-          </button>
-        </div>
-      </div>
-
-      {activeTab === "upcoming" && (
-        <div>
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mb-4"></div>
-              <p className="text-gray-400">Loading upcoming events...</p>
-            </div>
-          ) : upcomingEvents.length === 0 ? (
-            <div className="bg-gray-800 text-gray-400 p-6 rounded-lg">
-              No upcoming events found.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingEvents.map((event) => (
-                <OrganizerEventCard
-                  key={event._id}
-                  event={event}
-                  onDelete={() => handleDelete(event._id)}
-                  onEdit={() => navigate(`/edit-event/${event._id}`)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === "past" && (
-        <div>
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mb-4"></div>
-              <p className="text-gray-400">Loading past events...</p>
-            </div>
-          ) : pastEvents.length === 0 ? (
-            <div className="bg-gray-800 text-gray-400 p-6 rounded-lg">
-              No past events found.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pastEvents.map((event) => (
-                <OrganizerEventCard
-                  key={event._id}
-                  event={event}
-                  onDelete={() => handleDelete(event._id)}
-                  onEdit={() => navigate(`/edit-event/${event._id}`)}
-                  isPast
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === "toEdit" && (
-        <div>
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mb-4"></div>
-              <p className="text-gray-400">Loading to edit events...</p>
-            </div>
-          ) : toEditEvents.length === 0 ? (
-            <div className="bg-gray-800 text-gray-400 p-6 rounded-lg">
-              No to edit events found.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {toEditEvents.map((event) => (
-                <OrganizerEventCard
-                  key={event._id}
-                  event={event}
-                  onEdit={() => navigate(`/edit-event/${event._id}`)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === "status" && <EventStatus />}
     </div>
   );
 };

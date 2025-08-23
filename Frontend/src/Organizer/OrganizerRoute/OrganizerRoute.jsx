@@ -4,6 +4,8 @@ import MyEvents from '../MyEvents/EventList';
 import CreateEvent from '../CreateEvent/Create';
 import UpdateEvent from '../CreateEvent/Update';
 import ErrorBoundary from './ErrorBoundary';
+import EventDetails from '../CreateEvent/EventDetails';
+import Registration from '../Registrations/Registration';
 
 const RequireOrganizerAuth = ({ children }) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -40,6 +42,26 @@ const OrganizerRoutes = () => {
           <RequireOrganizerAuth>
             <ErrorBoundary>
               <UpdateEvent />
+            </ErrorBoundary>
+          </RequireOrganizerAuth>
+        }
+      />
+      <Route
+        path="/event-details/:id"
+        element={
+          <RequireOrganizerAuth>
+            <ErrorBoundary>
+              <EventDetails />
+            </ErrorBoundary>
+          </RequireOrganizerAuth>
+        }
+      />
+      <Route
+        path="/registration"
+        element={
+          <RequireOrganizerAuth>
+            <ErrorBoundary>
+              <Registration />
             </ErrorBoundary>
           </RequireOrganizerAuth>
         }

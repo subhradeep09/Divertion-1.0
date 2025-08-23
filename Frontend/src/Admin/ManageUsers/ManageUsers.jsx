@@ -1,14 +1,12 @@
-
-
-import React, { useState } from 'react';
-import UserTable from './UserTable';
-import UserDetailsModal from './UserDetailsModal';
+import React, { useState } from "react";
+import UserTable from "./UserTable";
+import UserDetailsModal from "./UserDetailsModal";
 
 const ManageUsers = () => {
   const [selectedUser, setSelectedUser] = useState(null);
 
   const handleEdit = (user) => {
-    alert(`Edit user: ${user.name}`);
+    setSelectedUser(user);
   };
 
   const handleDelete = (user) => {
@@ -20,9 +18,15 @@ const ManageUsers = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Manage Users</h1>
-      <UserTable />
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6">
+      <h1 className="text-3xl font-bold text-pink-500 mb-6 text-center mt-20">
+        Manage Users
+      </h1>
+      <UserTable
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onToggleStatus={handleToggleStatus}
+      />
       {selectedUser && (
         <UserDetailsModal
           user={selectedUser}
