@@ -1,108 +1,199 @@
-import OrganizerEventCard from '../OrganizerComponents/OrganizerEventCard';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { organizerAxios } from '../../utils/axiosInstance';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import organizerAxios from "../../utils/organizerAxios";
+import OrganizerEventCard from "../OrganizerComponents/OrganizerEventCard";
+import EventStatus from "./EventStatus";
 
 const EventList = () => {
-  const navigate = useNavigate();
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
+  const [toEditEvents, setToEditEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("upcoming");
+  const navigate = useNavigate();
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [upcomingRes, pastRes, toEditRes] = await Promise.all([
+        organizerAxios.get("/events/upcoming"),
+        organizerAxios.get("/events/past"),
+        organizerAxios.get("/events/pending-Edit"),
+      ]);
+
+      // Include both APPROVED and PENDING events in upcoming list
+      const upcomingData = Array.isArray(upcomingRes.data.message)
+        ? upcomingRes.data.message.filter(
+            (event) => event.status === "APPROVED" || event.status === "PENDING"
+          )
+        : [];
+
+      const pastData = Array.isArray(pastRes.data.message) ? pastRes.data.message : [];
+
+      const toEditData = Array.isArray(toEditRes.data.message) ? toEditRes.data.message : [];
+
+      setUpcomingEvents(upcomingData);
+      setPastEvents(pastData);
+      setToEditEvents(toEditData);
+
+      console.log("Upcoming events:", upcomingData);
+      console.log("Past events:", pastData);
+      console.log("To Edit events:", toEditData);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to fetch events");
+      console.error("Failed to fetch events", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const upcomingRes = await organizerAxios.get('/events/upcoming');
-        const pastRes = await organizerAxios.get('/events/past');
-
-        const upcomingData = upcomingRes?.data?.message;
-        const pastData = pastRes?.data?.message;
-
-        setUpcomingEvents(Array.isArray(upcomingData) ? upcomingData : []);
-        setPastEvents(Array.isArray(pastData) ? pastData : []);
-      } catch (error) {
-        console.error('Failed to fetch events:', error);
-        setUpcomingEvents([]);
-        setPastEvents([]);
-      }
-    };
-
     fetchEvents();
   }, []);
 
   const handleDelete = async (eventId) => {
-    // console.log('Delete button clicked for event:', eventId);
-    if (!window.confirm('Are you sure you want to delete this event?')) return;
-    try {
-      // console.log(`Sending DELETE request to /events/${eventId}`);
-      const response = await organizerAxios.delete(`/events/${eventId}`);
-      // console.log('Response status:', response?.status);
-      // console.log('Response data:', response?.data);
-
-      if (response?.status === 200) {
-        // Refetch events to update UI
-        const upcomingRes = await organizerAxios.get('/events/upcoming');
-        const pastRes = await organizerAxios.get('/events/past');
-
-        const upcomingData = upcomingRes?.data?.message;
-        const pastData = pastRes?.data?.message;
-
-        setUpcomingEvents(Array.isArray(upcomingData) ? upcomingData : []);
-        setPastEvents(Array.isArray(pastData) ? pastData : []);
-      } else {
-        console.error('Failed to delete event. Status:', response?.status);
+    if (window.confirm("Are you sure you want to delete this event?")) {
+      try {
+        await organizerAxios.delete(`/dashboard/organizer/events/${eventId}`);
+        // Optimistically update the state arrays by removing the deleted event
+        setUpcomingEvents(prev => prev.filter(event => event._id !== eventId));
+        setPastEvents(prev => prev.filter(event => event._id !== eventId));
+        setToEditEvents(prev => prev.filter(event => event._id !== eventId));
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to delete event");
+        console.error("Failed to delete event", err);
       }
-    } catch (error) {
-      console.error('Failed to delete event:', error);
     }
   };
 
   return (
-    <div className="px-8 py-10 min-h-40 ">
-      <h2 className="text-white text-xl font-bold mb-4">Upcoming Events</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        {upcomingEvents.length > 0 ? (
-          upcomingEvents.map((event) => (
-            <OrganizerEventCard
-              key={event._id}
-              event={event}
-              price={event.price}
-              onEdit={() => navigate(`/update-event/${event._id}`)}
-              onDelete={() => handleDelete(event._id)}
-            />
-          ))
-        ) : (
-          <div className="text-white text-center col-span-full">
-            No upcoming events found.
-          </div>
-        )}
+    <div className="container mx-auto px-4 py-25 bg-black">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-white">My Events</h1>
+        <button
+          onClick={() => navigate("/create-event")}
+          className="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+        >
+          Create New Event
+        </button>
       </div>
 
-      <h2 className="text-white text-xl font-bold mb-4">Past Events</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        {pastEvents.length > 0 ? (
-          pastEvents.map((event) => (
-            <OrganizerEventCard
-              key={event._id}
-              event={event}
-              price={event.price}
-              onEdit={() => navigate(`/update-event/${event._id}`)}
-              onDelete={() => handleDelete(event._id)}
-            />
-          ))
-        ) : (
-          <div className="text-white text-center col-span-full">
-            No past events found.
-          </div>
-        )}
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+          {error}
+        </div>
+      )}
+
+      <div className="mb-6">
+        <div className="flex border-b border-gray-700">
+          <button
+            className={`py-2 px-4 font-medium ${activeTab === "upcoming" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
+            onClick={() => setActiveTab("upcoming")}
+          >
+            Upcoming Events
+          </button>
+          <button
+            className={`py-2 px-4 font-medium ${activeTab === "past" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
+            onClick={() => setActiveTab("past")}
+          >
+            Past Events
+          </button>
+          <button
+            className={`py-2 px-4 font-medium ${activeTab === "toEdit" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
+            onClick={() => setActiveTab("toEdit")}
+          >
+            To Edit Events
+          </button>
+          <button
+            className={`py-2 px-4 font-medium ${activeTab === "status" ? "text-pink-400 border-b-2 border-pink-400" : "text-gray-400 hover:text-white"}`}
+            onClick={() => setActiveTab("status")}
+          >
+            Event Status
+          </button>
+        </div>
       </div>
 
-      <div
-        onClick={() => navigate('/create-event')}
-        className="flex items-center justify-center bg-[#2a2a2a] text-white border-2 border-dashed border-pink-500 rounded-lg cursor-pointer hover:bg-[#333] transition duration-300"
-        style={{ minHeight: '300px' }}
-      >
-        <span className="text-lg font-semibold">+ Create New Event</span>
-      </div>
+      {activeTab === "upcoming" && (
+        <div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mb-4"></div>
+              <p className="text-gray-400">Loading upcoming events...</p>
+            </div>
+          ) : upcomingEvents.length === 0 ? (
+            <div className="bg-gray-800 text-gray-400 p-6 rounded-lg">
+              No upcoming events found.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingEvents.map((event) => (
+                <OrganizerEventCard
+                  key={event._id}
+                  event={event}
+                  onDelete={() => handleDelete(event._id)}
+                  onEdit={() => navigate(`/edit-event/${event._id}`)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "past" && (
+        <div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mb-4"></div>
+              <p className="text-gray-400">Loading past events...</p>
+            </div>
+          ) : pastEvents.length === 0 ? (
+            <div className="bg-gray-800 text-gray-400 p-6 rounded-lg">
+              No past events found.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pastEvents.map((event) => (
+                <OrganizerEventCard
+                  key={event._id}
+                  event={event}
+                  onDelete={() => handleDelete(event._id)}
+                  onEdit={() => navigate(`/edit-event/${event._id}`)}
+                  isPast
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "toEdit" && (
+        <div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500 mb-4"></div>
+              <p className="text-gray-400">Loading to edit events...</p>
+            </div>
+          ) : toEditEvents.length === 0 ? (
+            <div className="bg-gray-800 text-gray-400 p-6 rounded-lg">
+              No to edit events found.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {toEditEvents.map((event) => (
+                <OrganizerEventCard
+                  key={event._id}
+                  event={event}
+                  onEdit={() => navigate(`/edit-event/${event._id}`)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "status" && <EventStatus />}
     </div>
   );
 };

@@ -11,24 +11,13 @@ const axiosInstance = axios.create({
   withCredentials: true, // ✅ Required for refreshToken via cookies
 });
 
-export const organizerAxios = axios.create({
-  baseURL: `${import.meta.env.VITE_REACT_APP_API_URL}/dashboard/organizer`,
-  withCredentials: true,
-});
-
 axiosInstance.interceptors.request.use((config) => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
-  config.headers['Content-Type'] = 'application/json';
-  return config;
-});
-
-organizerAxios.interceptors.request.use((config) => {
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+  if (!(config.data instanceof FormData)) {
+    config.headers['Content-Type'] = 'application/json';
   }
-  config.headers['Content-Type'] = 'application/json';
   return config;
 });
 

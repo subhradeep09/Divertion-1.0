@@ -22,7 +22,7 @@ const bookingSchema = new mongoose.Schema(
     },
     ticketId: {
       type: String,
-    unique: true,
+      unique: true,
     },
     bookedAt: {
       type: Date,

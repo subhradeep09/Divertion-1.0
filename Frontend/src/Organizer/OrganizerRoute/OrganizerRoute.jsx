@@ -1,10 +1,9 @@
-
-
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import MyEvents from '../MyEvents/MyEvents';
+import MyEvents from '../MyEvents/EventList';
 import CreateEvent from '../CreateEvent/Create';
 import UpdateEvent from '../CreateEvent/Update';
+import ErrorBoundary from './ErrorBoundary';
 
 const RequireOrganizerAuth = ({ children }) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -19,7 +18,9 @@ const OrganizerRoutes = () => {
         path="/"
         element={
           <RequireOrganizerAuth>
-            <MyEvents />
+            <ErrorBoundary>
+              <MyEvents />
+            </ErrorBoundary>
           </RequireOrganizerAuth>
         }
       />
@@ -27,7 +28,9 @@ const OrganizerRoutes = () => {
         path="/create-event"
         element={
           <RequireOrganizerAuth>
-            <CreateEvent />
+            <ErrorBoundary>
+              <CreateEvent />
+            </ErrorBoundary>
           </RequireOrganizerAuth>
         }
       />
@@ -35,7 +38,9 @@ const OrganizerRoutes = () => {
         path="/update-event/:eventId"
         element={
           <RequireOrganizerAuth>
-            <UpdateEvent />
+            <ErrorBoundary>
+              <UpdateEvent />
+            </ErrorBoundary>
           </RequireOrganizerAuth>
         }
       />

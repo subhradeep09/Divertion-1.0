@@ -99,8 +99,14 @@ const Register = () => {
         }
       );
 
-      showSuccess(response.data.message || "Registered successfully");
-      const userId = response?.data?.message?.userId;
+      const backendMessage = response?.data?.message;
+      const userId = backendMessage?.userId;
+
+      showSuccess(
+        typeof backendMessage === "string"
+          ? backendMessage
+          : "Registered successfully"
+      );
       // console.log("Registration response data:", response.data);
       // console.log("Extracted userId:", userId);
       // Conditional navigation and storage
