@@ -1,9 +1,11 @@
+import mongoose from "mongoose";
 import Event from "../../models/event.models.js";
 import Booking from "../../models/booking.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import QRCode from "qrcode";
 import { sendEmail } from "../../utils/sendEmail.js";
+import UserCancelledBooking from "../../models/userCancelledBookings.js";
 
 export const viewEvents = async (req, res, next) => {
   try {
@@ -139,26 +141,58 @@ export const bookingHistory = async(req, res, next) => {
 }
 
 export const cancelBooking = async(req, res, next) => {
+  const session = await mongoose.startSession(); 
+  session.startTransaction();
   try {
     const { bookingId } = req.params;
     if(!bookingId) {
-      throw new ApiError(404, "Booking not found");
+      throw new ApiError(404, "Booking id not sent");
     }
     const userId = req.user._id;
     if(!userId) {
       throw new ApiError(404, "Unauthorized Request");
     }
-    const booking = await Booking.findOneAndDelete({ _id: bookingId, user: userId }).populate({
-      path: "event",
-      match: { date: { $gte: new Date() }, isPublished: true, status: "APPROVED" },
+    
+    
+    const booking = await Booking.findOne(
+      { _id: bookingId, user: userId },
+      null,
+      { session },
+    ).populate({
+        path: "event",
+        match: { date: { $gte: new Date() }, isPublished: true, status: "APPROVED" },
     });
-
+    // console.log(booking);
     if(!booking || !booking.event) {
       throw new ApiError(404, "Booking not found or unauthorized");
     }
+    await booking.deleteOne({ session });
+    const cancelledEvent = await UserCancelledBooking.create(
+      [{ bookingId : booking._id, userId, eventId: booking.event._id }],
+      { session }
+    );
+    await session.commitTransaction(); 
+    await session.endSession();
+
     return res
       .status(200)
-      .json(new ApiResponse(200, null, "Booking cancelled successfully"));
+      .json(new ApiResponse(200, cancelledEvent, "Booking cancelled successfully"));
+  } catch (error) {
+    await session.abortTransaction(); 
+    await session.endSession();
+    next(error);
+  }
+}
+
+export const viewCancelledBooking = async(req,res,next) => {
+  try{
+    const userId = req.user._id;
+    if(!userId)
+      throw new ApiError(404, "Unauthorized Request");
+    const cancelledBookings = await UserCancelledBooking.find({userId});
+    return res
+      .status(200)
+      .json(new ApiResponse(200, cancelledBookings, "Cancelled Bookings retrieved successfully"));
   } catch (error) {
     next(error);
   }

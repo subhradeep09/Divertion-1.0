@@ -290,3 +290,33 @@ export const viewToEditEvents = async (req, res, next) => {
   }
 };
 
+export const viewRegisteredAttendee = async(req,res,next) => {
+  try{
+    const {eventId} = req.params;
+    if(!eventId)
+      throw new ApiError(404,"Event id not sent");
+    const userId = req.user._id;
+    if(!userId)
+      throw new ApiError(404,"Unauthorized Request");
+
+    const eventDetail = await Event.findOne({_id:eventId, organizer:userId});
+    if(!eventDetail)
+      throw new ApiError(404,"No Event is Found");
+    const registeredAttendees = await Booking.find({event:eventId, paymentStatus: { $in: ["SUCCESS", "FREE"] }})
+    .populate({
+      path : "user",
+      select : "username fullname email phoneNumber"
+    }).select("ticketId qrCodeUrl bookedAt")
+    .sort({bookedAt: 1});
+
+    if(registeredAttendees.length === 0)
+      throw new ApiError(404,"No Registered Attendees");
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, registeredAttendees, "Registered attendees retrieved successfully"));  
+  }
+  catch(error){
+    next(error);
+  }
+}
