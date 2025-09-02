@@ -83,7 +83,7 @@ const ViewEvents = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-3">Upcoming Events</h1>
+          <h1 className="text-4xl font-bold text-white mb-3 mt-20">Upcoming Events</h1>
           <p className="text-gray-400 max-w-2xl mx-auto">
             Discover and book your spot at the most exciting events happening near you
           </p>

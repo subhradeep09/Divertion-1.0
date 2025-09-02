@@ -1,46 +1,102 @@
-import React, { useState } from 'react';
-import { FiSearch, FiFilter, FiDownload, FiEye, FiEdit, FiTrash2, FiUserCheck, FiUserX } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FiSearch, FiFilter, FiDownload, FiEye, FiUserCheck, FiCalendar, FiUsers } from 'react-icons/fi';
+import organizerAxios from '../../utils/organizerAxios';
 
 function Register() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  
-  const users = [
-    { id: 1, name: "John Doe", email: "john@example.com", event: "Tech Conference", status: "Confirmed", date: "2023-10-15" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com", event: "Music Fest", status: "Pending", date: "2023-10-16" },
-    { id: 3, name: "Mike Johnson", email: "mike@example.com", event: "Art Exhibition", status: "Confirmed", date: "2023-10-17" },
-    { id: 4, name: "Sarah Wilson", email: "sarah@example.com", event: "Tech Conference", status: "Cancelled", date: "2023-10-18" },
-    { id: 5, name: "David Brown", email: "david@example.com", event: "Music Fest", status: "Pending", date: "2023-10-19" }
-  ];
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.event.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+  // Fetch upcoming events from backend
+  useEffect(() => {
+    const fetchUpcomingEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await organizerAxios.get("/events/upcoming");
+        
+        // Filter to only include APPROVED and PENDING events, and set attendeeCount from backend if available
+        const upcomingData = Array.isArray(response.data.message)
+          ? response.data.message
+              .filter((event) => event.status === "APPROVED" || event.status === "PENDING")
+              .map((event) => ({
+                ...event,
+                attendeeCount: event.attendeeCount || (event.attendees ? event.attendees.length : 0)
+              }))
+          : [];
+
+        setUpcomingEvents(upcomingData);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch upcoming events");
+        console.error("Failed to fetch upcoming events", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUpcomingEvents();
+  }, []);
+
+  const filteredEvents = upcomingEvents.filter(event => {
+    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         event.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'approved' && event.status === 'APPROVED') ||
+                         (statusFilter === 'pending' && event.status === 'PENDING');
+    
     return matchesSearch && matchesStatus;
   });
 
   const getStatusBadge = (status) => {
     const statusStyles = {
-      Confirmed: "bg-gradient-to-r from-green-500 to-emerald-600",
-      Pending: "bg-gradient-to-r from-amber-500 to-orange-600",
-      Cancelled: "bg-gradient-to-r from-rose-600 to-red-700"
+      APPROVED: "bg-gradient-to-r from-green-500 to-emerald-600",
+      PENDING: "bg-gradient-to-r from-amber-500 to-orange-600",
+      REJECTED: "bg-gradient-to-r from-rose-600 to-red-700"
     };
     
     const statusIcons = {
-      Confirmed: <FiUserCheck className="mr-1" />,
-      Pending: <FiEye className="mr-1" />,
-      Cancelled: <FiUserX className="mr-1" />
+      APPROVED: <FiUserCheck className="mr-1" />,
+      PENDING: <FiEye className="mr-1" />,
+      REJECTED: <FiUsers className="mr-1" />
+    };
+
+    const statusText = {
+      APPROVED: "Approved",
+      PENDING: "Pending",
+      REJECTED: "Rejected"
     };
 
     return (
       <span className={`${statusStyles[status]} text-white text-xs px-3 py-1.5 rounded-full flex items-center justify-center`}>
         {statusIcons[status]}
-        {status}
+        {statusText[status]}
       </span>
     );
   };
+
+  const handleViewRegistrations = (eventId) => {
+    navigate(`/registration/${eventId}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6 flex items-center justify-center">
+        <div className="text-white text-xl">Loading events...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6 flex items-center justify-center">
+        <div className="text-red-400 text-xl">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6">
@@ -48,9 +104,9 @@ function Register() {
         {/* Header */}
         <div className="mb-8 mt-20">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-            User Registrations
+            Event Registrations
           </h1>
-          <p className="text-gray-400 mt-2">Manage and track all event registrations</p>
+          <p className="text-gray-400 mt-2">Manage registrations for your upcoming events</p>
         </div>
 
         {/* Controls */}
@@ -60,7 +116,7 @@ function Register() {
               <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-400" />
               <input
                 type="text"
-                placeholder="Search registrations..."
+                placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-gray-700/60 text-white placeholder-gray-400 rounded-xl border-2 border-gray-700 focus:border-pink-500 focus:ring-4 focus:ring-pink-500/20 transition-all"
@@ -74,86 +130,61 @@ function Register() {
                 className="px-4 py-3 bg-gray-700/60 text-white rounded-xl border-2 border-gray-700 focus:border-pink-500 focus:ring-4 focus:ring-pink-500/20 transition-all"
               >
                 <option value="all">All Status</option>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Pending">Pending</option>
-                <option value="Cancelled">Cancelled</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
               </select>
-              
-              <button className="px-4 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl hover:from-pink-700 hover:to-purple-700 transition-all flex items-center">
-                <FiDownload className="mr-2" />
-                Export
-              </button>
             </div>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-gray-800/50 backdrop-blur-md rounded-2xl overflow-hidden border border-pink-500/20 shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-pink-600/20 to-purple-600/20">
-                  <th className="px-6 py-4 text-left text-pink-300 font-semibold">User</th>
-                  <th className="px-6 py-4 text-left text-pink-300 font-semibold">Event</th>
-                  <th className="px-6 py-4 text-left text-pink-300 font-semibold">Registration Date</th>
-                  <th className="px-6 py-4 text-left text-pink-300 font-semibold">Status</th>
-                  <th className="px-6 py-4 text-left text-pink-300 font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-700">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-700/30 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="font-medium text-white group-hover:text-pink-300 transition-colors">
-                          {user.name}
-                        </div>
-                        <div className="text-gray-400 text-sm">{user.email}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-white">{user.event}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-gray-300">{user.date}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(user.status)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2">
-                        <button className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-pink-300 hover:text-pink-200" title="View Details">
-                          <FiEye />
-                        </button>
-                        <button className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-blue-400 hover:text-blue-300" title="Edit">
-                          <FiEdit />
-                        </button>
-                        <button className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-rose-400 hover:text-rose-300" title="Delete">
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-pink-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FiUserX className="text-2xl text-pink-400" />
+        {/* Events Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredEvents.map((event) => (
+            <div key={event._id} className="bg-gray-800/50 backdrop-blur-md rounded-2xl p-6 border border-pink-500/20 hover:border-pink-500/40 transition-all group">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-xl font-bold text-white group-hover:text-pink-300 transition-colors">
+                  {event.title}
+                </h3>
+                {getStatusBadge(event.status)}
               </div>
-              <p className="text-gray-400">No registrations found</p>
-              <p className="text-gray-500 text-sm mt-1">Try adjusting your search or filters</p>
+              
+              <p className="text-gray-400 mb-4 line-clamp-2">
+                {event.description || 'No description available'}
+              </p>
+
+              <div className="flex space-x-3">
+                <button 
+                  onClick={() => handleViewRegistrations(event._id)}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all flex items-center justify-center"
+                >
+                  <FiUserCheck className="mr-2" />
+                  View Registrations
+                </button>
+              </div>
             </div>
-          )}
+          ))}
         </div>
+
+        {filteredEvents.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-pink-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiCalendar className="text-2xl text-pink-400" />
+            </div>
+            <h3 className="text-2xl font-semibold text-white mb-2">No upcoming events</h3>
+            <p className="text-gray-400 mb-6">You don't have any upcoming events yet.</p>
+            <button 
+              onClick={() => navigate("/create-event")}
+              className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all font-medium"
+            >
+              Create Your First Event
+            </button>
+          </div>
+        )}
 
         {/* Pagination */}
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex justify-between items-center mt-8">
           <div className="text-gray-400 text-sm">
-            Showing {filteredUsers.length} of {users.length} registrations
+            Showing {filteredEvents.length} of {upcomingEvents.length} events
           </div>
           <div className="flex space-x-2">
             <button className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">
@@ -161,9 +192,6 @@ function Register() {
             </button>
             <button className="px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg">
               1
-            </button>
-            <button className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">
-              2
             </button>
             <button className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">
               Next
