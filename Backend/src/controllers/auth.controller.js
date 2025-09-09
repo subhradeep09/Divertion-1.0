@@ -8,6 +8,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 const generateRefreshAndAccessToken = async (userId) => {
   try {
     const user = await User.findById(userId);
+    if(user.isBanned || !user.isVerified)
+      throw new ApiError(403, "Your account has been banned. Contact support.");
+      
     const accessToken = await user.generateAccessToken();
     const refreshToken = await user.generateRefreshToken();
 
@@ -15,12 +18,11 @@ const generateRefreshAndAccessToken = async (userId) => {
     await user.save({ validateBeforeSave: false });
     return { accessToken, refreshToken };
   } catch (error) {
-    next(error);
+    throw error;
   }
 };
 
 export const registerUser = async (req, res, next) => {
-  console.log("Register");
   try {
     const { username, email, password, fullname, phoneNumber, role } = req.body;
 
@@ -176,6 +178,12 @@ export const loginUser = async (req, res, next) => {
     if (!user) {
       throw new ApiError(404, "User not found");
     }
+    if (user.isBanned) {
+      throw new ApiError(403, "Your account has been banned. Contact support.");
+    }
+    if (!user.isVerified) {
+      throw new ApiError(403, "Please verify your account before logging in");
+    }
     const isPasswordCorrect = await user.isPasswordCorrect(password);
     if (!isPasswordCorrect) {
       throw new ApiError(401, "Invalid credentials");
@@ -273,12 +281,13 @@ export const resendOtp = async (req, res, next) => {
     await sendEmail(user.email, subject, html);
 
     return res.status(201).json(
-      new ApiResponse(201),
+      new ApiResponse(201,
       {
         userId: user._id,
       },
       "Otp resent successfully"
-    );
+    )
+  );
   } catch (error) {
     console.error("Error in resendOtp:", error);
     next(error);
@@ -289,7 +298,6 @@ export const refreshAccessToken = async (req, res, next) => {
   const incomingRefreshToken =
     req.cookies?.refreshToken || req.body.refreshToken;
 
-  // console.log("incomingRefreshToken", incomingRefreshToken);
 
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Unauthorized request");
@@ -300,12 +308,10 @@ export const refreshAccessToken = async (req, res, next) => {
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-    // console.log("decodedToken", decodedToken);
 
     const user = await User.findById(decodedToken?._id);
-    // console.log("user", user);
 
-    if (!user) {
+    if (!user || user.isBanned) {
       throw new ApiError(401, "Unauthorized request");
     }
 
@@ -318,16 +324,11 @@ export const refreshAccessToken = async (req, res, next) => {
       secure: true,
     };
 
-    // console.log("options", options);
-    // console.log("user", user._id.toString());
+
 
     const { accessToken, refreshToken } = await generateRefreshAndAccessToken(
       user._id
     );
-
-    // console.log("refreshToken", refreshToken);
-    // console.log("accessToken", accessToken);
-
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)

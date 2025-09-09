@@ -16,7 +16,7 @@ const eventSchema = new mongoose.Schema(
       required: true,
     },
     startTime: {
-      type: String, // e.g., "14:00" in 24-hour format
+      type: String, 
       required: true,
     },
     location: {

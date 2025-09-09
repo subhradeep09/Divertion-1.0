@@ -9,7 +9,6 @@ import UserCancelledBooking from "../../models/userCancelledBookings.js";
 
 export const viewEvents = async (req, res, next) => {
   try {
-    console.log(req.user);
     const events = await Event.find({
       isPublished: true,
       status: "APPROVED",
