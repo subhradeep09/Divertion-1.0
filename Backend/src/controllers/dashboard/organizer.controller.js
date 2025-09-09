@@ -21,7 +21,6 @@ export const createEvent = async (req, res, next) => {
     const capacity = parseInt(req.body.capacity) || 0;
     const price = parseInt(req.body.price) || 0;
 
-
     if (!title || !date || !location || !startTime) {
       throw new ApiError(
         400,
@@ -62,8 +61,8 @@ export const createEvent = async (req, res, next) => {
       price: isPaid ? price : 0,
       organizer: req.user._id,
 
-      status: "PENDING", 
-      isPublished: false
+      status: "PENDING",
+      isPublished: false,
     });
 
     return res
@@ -73,7 +72,6 @@ export const createEvent = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const updateEvent = async (req, res, next) => {
   try {
@@ -119,7 +117,10 @@ export const updateEvent = async (req, res, next) => {
 
     // Validate inputs
     if (isPaid && (typeof price !== "number" || price <= 0)) {
-      throw new ApiError(400, "Price must be a positive number for paid events");
+      throw new ApiError(
+        400,
+        "Price must be a positive number for paid events"
+      );
     }
 
     if (isOnline && !eventLink) {
@@ -136,14 +137,27 @@ export const updateEvent = async (req, res, next) => {
       if (theme !== undefined) event.theme = theme;
       if (isPaid !== undefined) event.isPaid = isPaid;
       if (price !== undefined) {
-        if(isPaid || event.price) event.price = price;
+        if (isPaid || event.price) event.price = price;
         else {
           event.price = 0;
         }
       }
     } else if (event.status === "APPROVED") {
-      if (title || description || date || startTime || theme || isPaid !== undefined || price !== undefined || location || venueDetails) {
-        throw new ApiError(403, "You cannot edit these fields after approval. Contact admin for changes.");
+      if (
+        title ||
+        description ||
+        date ||
+        startTime ||
+        theme ||
+        isPaid !== undefined ||
+        price !== undefined ||
+        location ||
+        venueDetails
+      ) {
+        throw new ApiError(
+          403,
+          "You cannot edit these fields after approval. Contact admin for changes."
+        );
       }
     }
 
@@ -162,7 +176,6 @@ export const updateEvent = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const viewUpcomingEvents = async (req, res, next) => {
   try {
@@ -253,19 +266,26 @@ export const eventStatus = async (req, res, next) => {
       .sort({ createdAt: -1 });
 
     // Format response to ensure rejectionReason only appears if rejected
-    const eventHistory = events.map(event => ({
+    const eventHistory = events.map((event) => ({
       _id: event._id,
       title: event.title,
       date: event.date,
       status: event.status,
-      rejectionReason: event.status === "REJECTED" ? event.rejectionReason : null,
+      rejectionReason:
+        event.status === "REJECTED" ? event.rejectionReason : null,
       createdAt: event.createdAt,
-      updatedAt: event.updatedAt
+      updatedAt: event.updatedAt,
     }));
 
     return res
       .status(200)
-      .json(new ApiResponse(200, eventHistory, "Event request history retrieved successfully"));
+      .json(
+        new ApiResponse(
+          200,
+          eventHistory,
+          "Event request history retrieved successfully"
+        )
+      );
   } catch (error) {
     next(error);
   }
@@ -290,33 +310,54 @@ export const viewToEditEvents = async (req, res, next) => {
   }
 };
 
-export const viewRegisteredAttendee = async(req,res,next) => {
-  try{
-    const {eventId} = req.params;
-    if(!eventId)
-      throw new ApiError(404,"Event id not sent");
-    const userId = req.user._id;
-    if(!userId)
-      throw new ApiError(404,"Unauthorized Request");
+export const viewRegisteredAttendee = async (req, res, next) => {
+  try {
+    const { eventId } = req.params;
+    if (!eventId) throw new ApiError(404, "Event id not sent");
+    if (!req.user) throw new ApiError(404, "Unauthorized Request ");
+    var userId;
+    if (req.user.role === "organizer") {
+      userId = req.user._id;
+    } else if (req.user.role === "admin") {
+      if (!req.body.userId) {
+        throw new ApiError(400, "Admin must provide organizer userId");
+      }
+      console.log(req.body.userId);
+      userId = req.body.userId;
+    }
 
-    const eventDetail = await Event.findOne({_id:eventId, organizer:userId});
-    if(!eventDetail)
-      throw new ApiError(404,"No Event is Found");
-    const registeredAttendees = await Booking.find({event:eventId, paymentStatus: { $in: ["SUCCESS", "FREE"] }})
-    .populate({
-      path : "user",
-      select : "username fullname email phoneNumber"
-    }).select("ticketId qrCodeUrl bookedAt")
-    .sort({bookedAt: 1});
+    if (!userId) throw new ApiError(404, "Unauthorized Request here");
 
-    if(registeredAttendees.length === 0)
-      throw new ApiError(404,"No Registered Attendees");
+    const eventDetail = await Event.findOne({
+      _id: eventId,
+      organizer: userId,
+    });
+    if (!eventDetail) throw new ApiError(404, "No Event is Found");
+
+    const registeredAttendees = await Booking.find({
+      event: eventId,
+      paymentStatus: { $in: ["SUCCESS", "FREE"] },
+    })
+      .populate({
+        path: "user",
+        select: "username fullname email phoneNumber",
+      })
+      .select("ticketId qrCodeUrl bookedAt")
+      .sort({ bookedAt: 1 });
+
+    if (registeredAttendees.length === 0)
+      throw new ApiError(404, "No Registered Attendees");
 
     return res
       .status(200)
-      .json(new ApiResponse(200, registeredAttendees, "Registered attendees retrieved successfully"));  
-  }
-  catch(error){
+      .json(
+        new ApiResponse(
+          200,
+          registeredAttendees,
+          "Registered attendees retrieved successfully"
+        )
+      );
+  } catch (error) {
     next(error);
   }
-}
+};
