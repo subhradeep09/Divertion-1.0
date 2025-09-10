@@ -5,32 +5,30 @@ import ManageUsers from '../ManageUsers/ManageUsers';
 import ManageEvents from '../ManageEvents/ManageEvents';
 import Reports from '../Reports/Reports';
 import ErrorBoundary from '../../Organizer/OrganizerRoute/ErrorBoundary';
-import EventDetailsModal from '../ManageEvents/EventDetailsModal';
+import { useAuth } from '../../context/AuthContext';
+import Banned from '../../pages/Banned';
+import VerifyAccount from '../../pages/VerifyAccount';
 
 // Component to restrict access to admin users
 function RequireAdminAuth({ children }) {
-  let user = null;
-  try {
-    user = JSON.parse(localStorage.getItem('user'));
-  } catch (e) {
-    user = null;
-  }
-  if (!user || user.role !== 'admin') {
+  const { user, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  return children;
-}
-
-function RequireEventAuth({ children }) {
-  let user = null;
-  try {
-    user = JSON.parse(localStorage.getItem('user'));
-  } catch (e) {
-    user = null;
+  
+  if (user.isBanned) {
+    return <Navigate to="/banned" replace />;
   }
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  
+  if (!user.isVerified) {
+    return <Navigate to="/verify-account" replace />;
   }
+  
+  if (user.role !== 'admin') {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  
   return children;
 }
 
@@ -67,6 +65,16 @@ const AdminRoutes = () => (
       }
     />
     <Route
+      path="/manage-events/:eventId"
+      element={
+        <RequireAdminAuth>
+          <ErrorBoundary>
+            <ManageEvents />
+          </ErrorBoundary>
+        </RequireAdminAuth>
+      }
+    />
+    <Route
       path="/reports"
       element={
         <RequireAdminAuth>
@@ -76,16 +84,8 @@ const AdminRoutes = () => (
         </RequireAdminAuth>
       }
     />
-    <Route
-      path="/events/:eventId"
-      element={
-        <RequireEventAuth>
-          <ErrorBoundary>
-            <EventDetailsModal />
-          </ErrorBoundary>
-        </RequireEventAuth>
-      }
-    />
+    <Route path="/banned" element={<Banned />} />
+    <Route path="/verify-account" element={<VerifyAccount />} />
   </Routes>
 );
 
