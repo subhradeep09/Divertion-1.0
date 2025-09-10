@@ -1,50 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../utils/axiosInstance';
+import { useAuth } from '../../context/AuthContext';
 import { showSuccess, showError } from '../../utils/toaster';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Redirect if already authenticated
+    if (isAuthenticated) {
+      navigate('/');
+    }
+    
     setIsAnimating(true);
     return () => setIsAnimating(false);
-  }, []);
-
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
-      const response = await axiosInstance.post('/login', { email, password });
-
-      const { success, message, data } = response.data;
-      // console.log("Login response:", JSON.stringify(response.data, null, 2));
-
-      const { user, accessToken, refreshToken } = message || {};
-      if (!success || !user) {
-        showError(message || "Login failed");
-        return;
+      const result = await login({ email, password });
+      
+      if (result.success) {
+        showSuccess("Login successful");
+        navigate('/'); // Navigate to home after successful login
+      } else {
+        showError(result.error);
+        
+        // Redirect to verification if needed
+        if (result.error.includes('verify')) {
+          navigate('/verify-account', { state: { email } });
+        }
       }
-
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      // console.log("User stored in localStorage:", user);
-      // console.log("Access token:", accessToken);
-
-      window.dispatchEvent(new Event('storage'));
-      // showSuccess("Login successful");
-      // console.log("Toaster: Login successful");
-      window.location.href = '/'; // forces re-evaluation of AllRoutes
     } catch (error) {
-      const serverError = error?.response?.data?.message;
-      const fallbackMessage = "Login failed. Please check your credentials and try again.";
-      showError(serverError || fallbackMessage);
+      showError(error.message || "Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,7 +63,7 @@ const Login = () => {
           <div className="absolute inset-0 z-0 overflow-hidden">
             <div className="absolute top-10 left-10 w-96 h-96 rounded-full bg-pink-600/10 blur-[120px] animate-float-slow"></div>
             <div className="absolute bottom-0 right-10 w-80 h-80 rounded-full bg-pink-500/10 blur-[100px] animate-float"></div>
-            <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 极客时间 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M0,300 Q400,0 800,300 T1600,300" stroke="url(#linear)" strokeWidth="6" fill="none" />
               <defs>
                 <linearGradient id="linear" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
@@ -75,9 +75,9 @@ const Login = () => {
           </div>
 
           {/* Foreground Content */}
-          <div className="relative z-10 text-center text-white space-y-6 max-w-md">
+          <div className="relative z-10 text-center text-white space-y-6极客时间 max-w-md">
             <div className="mb-6">
-              <h2 className="text-4xl font-extrabold text-transparent bg-gradient-to-br from-pink-400 via-pink-500 to-pink-600 bg-clip-text">
+              <h2 className="text-4xl font-extrabold text-transparent bg-gradient-to-b极客时间 r from-pink-400 via-pink-500 to-pink-600 bg-clip-text">
                 Welcome Back to <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">Divertion</span>
               </h2>
               <p className="text-white/70 text-sm mt-2">
@@ -118,7 +118,7 @@ const Login = () => {
             {/* Email Field */}
             <div className="group">
               <label className="block text-sm font-medium text-white/70 mb-1 ml-1 transition-all duration-200 group-focus-within:text-pink-400">Email</label>
-              <div className="flex items-center gap-3 bg-[#1e1e21] border border-[#2e2e32] rounded-lg px-4 py-3 transition-all duration-200 group-hover:border-pink-500/50 focus-within:border-pink-500 focus-within:ring-1 focus-within:ring-pink-500/30">
+              <div className="flex items-center gap-3 bg-[#1e1e21] border border-[#2e2e32] rounded-lg px-4 py-3 transition-all duration-200 group-h极客时间 over:border-pink-500/50 focus-within:border-pink-500 focus-with极客时间 in:ring-1 focus-within:ring-pink-500/30">
                 <span className="w-5 h-5 flex items-center justify-center text-pink-400">
                   <FaUser />
                 </span>
@@ -129,6 +129,7 @@ const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -147,11 +148,13 @@ const Login = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
                 <button 
                   type="button" 
                   onClick={() => setShowPassword(!showPassword)} 
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-pink-400 hover:text-pink-300 transition-colors"
+                  disabled={isLoading}
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
@@ -161,13 +164,16 @@ const Login = () => {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full py-3 font-medium rounded-lg bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white shadow-lg transition-all duration-300 transform hover:scale-[1.01] mt-6 group relative overflow-hidden"
+              disabled={isLoading}
+              className="w-full py-3 font-medium rounded-lg bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white shadow-lg transition-all duration-300 transform hover:scale-[1.01] mt-6 group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="relative z-10 flex items-center justify-center">
-                Login
-                <svg className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                </svg>
+                {isLoading ? 'Logging in...' : 'Login'}
+                {!isLoading && (
+                  <svg className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                )}
               </span>
               <span className="absolute inset-0 bg-gradient-to-r from-pink-600 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
             </button>
@@ -176,8 +182,8 @@ const Login = () => {
             <p className="text-center text-sm text-white/60 mt-8">
               Don't have an account?{' '}
               <span
-                onClick={() => navigate('/register')}
-                className="text-pink-400 hover:underline hover:text-pink-300 cursor-pointer transition-colors"
+                onClick={() => !isLoading && navigate('/register')}
+                className={`text-pink-400 hover:underline hover:text-pink-300 cursor-pointer transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 Sign up
               </span>

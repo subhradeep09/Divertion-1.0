@@ -1,8 +1,54 @@
 import React from 'react';
+import adminAxios from '../../utils/adminAxios';
+import { showSuccess, showError } from '../../utils/toaster';
 
 const ExportReportButton = ({ reportType, className = '' }) => {
-  const handleExport = () => {
-    alert(`Exporting ${reportType} report...`);
+  const handleExport = async () => {
+    try {
+      let endpoint;
+      let filename;
+      
+      switch (reportType) {
+        case 'Revenue':
+          // You might need to create this endpoint
+          endpoint = '/admin/export/revenue';
+          filename = 'revenue-report.csv';
+          break;
+        case 'Engagement':
+          endpoint = '/admin/export/users';
+          filename = 'engagement-report.csv';
+          break;
+        case 'Events':
+          endpoint = '/admin/export/events';
+          filename = 'events-report.csv';
+          break;
+        default:
+          endpoint = '/admin/export/users';
+          filename = 'report.csv';
+      }
+
+      const response = await adminAxios.get(endpoint, {
+        responseType: 'blob'
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      showSuccess(`${reportType} report exported successfully!`);
+
+    } catch (error) {
+      showError(`Failed to export ${reportType.toLowerCase()} report`);
+      console.error('Export error:', error);
+      
+      // Fallback to alert if API endpoint doesn't exist yet
+      alert(`Exporting ${reportType} report...\n\nNote: Export functionality requires backend implementation.`);
+    }
   };
 
   return (

@@ -4,11 +4,30 @@ import HomeAttendee from '../Home/HomeAttendee';
 import ViewEvents from '../Events/ViewEvents';
 import UpcomingBookings from '../Bookings/UpcomingBookings';
 import BookingHistory from '../Bookings/BookingHistory';
+import { useAuth } from '../../context/AuthContext';
+import Banned from '../../pages/Banned';
+import VerifyAccount from '../../pages/VerifyAccount';
 
 const RequireAttendeeAuth = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const isAuthenticated = user && user.role === 'attendee';
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  const { user, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (user.isBanned) {
+    return <Navigate to="/banned" replace />;
+  }
+  
+  if (!user.isVerified) {
+    return <Navigate to="/verify-account" replace />;
+  }
+  
+  if (user.role !== 'attendee') {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  
+  return children;
 };
 
 const AttendeeRoutes = () => {
@@ -46,6 +65,8 @@ const AttendeeRoutes = () => {
           </RequireAttendeeAuth>
         }
       />
+      <Route path="/banned" element={<Banned />} />
+      <Route path="/verify-account" element={<VerifyAccount />} />
     </Routes>
   );
 };

@@ -1,49 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { showSuccess } from '../utils/toaster';
 import logo from '../assets/Logo.png';
-
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
-  const [user, setUser] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const loadUser = () => {
-      const storedUser = localStorage.getItem('user');
-      // console.log("Raw storedUser from localStorage:", storedUser);
-      if (storedUser && storedUser !== "undefined") {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser && parsedUser.username) {
-            // console.log("Parsed user set:", parsedUser);
-            setUser(parsedUser);
-          } else {
-            console.warn("Parsed user is invalid or missing username:", parsedUser);
-            localStorage.removeItem('user');
-            setUser(null);
-          }
-        } catch (err) {
-          console.warn("Failed to parse user from localStorage:", storedUser, err);
-          localStorage.removeItem('user');
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-    };
-
-    loadUser(); // Initial load
-
-    const handleStorage = () => {
-      loadUser();
-    };
-
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -64,21 +29,14 @@ const Header = () => {
   }, [dropdownOpen]);
 
   const handleLogout = async () => {
-    try {
-      await fetch(`${import.meta.env.VITE_REACT_APP_API_URL}/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-    localStorage.removeItem('user');
-    showSuccess("Logout successful");
-    setUser(null);
-    console.log("Toaster: Logout successful");
+    await logout();
     setDropdownOpen(false);
-    window.location.href = '/login'; 
   };
+
+  // Don't show header if user is banned
+  if (user?.isBanned) {
+    return null;
+  }
 
   const adminLinks = [
     { label: 'Dashboard', href: '/' },
@@ -111,15 +69,23 @@ const Header = () => {
     ? organizerLinks
     : attendeeLinks;
 
-  // console.log("Current user state in Header:", user);
-
   return (
     <header className="absolute top-0 left-0 w-full flex items-center justify-between px-8 py-4 z-50">
       <div className="flex items-center gap-3">
-        <img src={logo} alt="Divertion Logo" className="h-20 w-auto object-contain" />
+        <Link to={isAuthenticated ? `/${user.role}` : '/'}>
+          <img src={logo} alt="Divertion Logo" className="h-20 w-auto object-contain" />
+        </Link>
         <span className="sr-only">Divertion</span>
       </div>
-      <nav className="flex gap-6">
+      
+      <nav className="flex items-center gap-6">
+        {/* Show verification alert if user is not verified */}
+        {isAuthenticated && !user.isVerified && (
+          <div className="px-4 py-2 bg-yellow-500/20 text-yellow-300 rounded-lg text-sm">
+            Please verify your account
+          </div>
+        )}
+        
         {navLinks.map(link => {
           let className = "font-medium px-5 py-2 rounded-full transition";
           className += " text-white hover:bg-pink-500/80 hover:text-white";
@@ -133,32 +99,36 @@ const Header = () => {
             </Link>
           );
         })}
-        {user ? (
+        
+        {isAuthenticated ? (
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="font-medium px-5 py-2 rounded-full bg-pink-700/70 text-white"
+              className="font-medium px-5 py-2 rounded-full bg-pink-700/70 text-white flex items-center gap-2"
             >
               {user.username}
+              <svg className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
             </button>
             {dropdownOpen && (
-              <div ref={dropdownRef} className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-10 min-w-[180px]">
+              <div ref={dropdownRef} className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-lg z-10 min-w-[180px] py-2">
                 {user.role === 'admin' && (
                   <>
-                    <Link to="/admin/profile" className="block px-4 py-2 hover:bg-pink-100">Admin Profile</Link>
-                    <Link to="/admin/settings" className="block px-4 py-2 hover:bg-pink-100">Admin Settings</Link>
+                    <Link to="/admin/profile" className="block px-4 py-2 hover:bg-pink-100" onClick={() => setDropdownOpen(false)}>Admin Profile</Link>
+                    <Link to="/admin/settings" className="block px-4 py-2 hover:bg-pink-100" onClick={() => setDropdownOpen(false)}>Admin Settings</Link>
                   </>
                 )}
                 {user.role === 'organizer' && (
                   <>
-                    <Link to="/organizer/profile" className="block px-4 py-2 hover:bg-pink-100">Organizer Profile</Link>
-                    <Link to="/organizer/settings" className="block px-4 py-2 hover:bg-pink-100">Event Settings</Link>
+                    <Link to="/organizer/profile" className="block px-4 py-2 hover:bg-pink-100" onClick={() => setDropdownOpen(false)}>Organizer Profile</Link>
+                    <Link to="/organizer/settings" className="block px-4 py-2 hover:bg-pink-100" onClick={() => setDropdownOpen(false)}>Event Settings</Link>
                   </>
                 )}
                 {user.role === 'attendee' && (
                   <>
-                    <Link to="/attendee/profile" className="block px-4 py-2 hover:bg-pink-100">My Profile</Link>
-                    <Link to="/attendee/settings" className="block px-4 py-2 hover:bg-pink-100">Settings</Link>
+                    <Link to="/attendee/profile" className="block px-4 py-2 hover:bg-pink-100" onClick={() => setDropdownOpen(false)}>My Profile</Link>
+                    <Link to="/attendee/settings" className="block px-4 py-2 hover:bg-pink-100" onClick={() => setDropdownOpen(false)}>Settings</Link>
                   </>
                 )}
                 <button

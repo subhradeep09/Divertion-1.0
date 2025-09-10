@@ -1,4 +1,3 @@
-// File 2: EventTable.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiEye, FiClock, FiCheck, FiX } from 'react-icons/fi';
@@ -11,21 +10,47 @@ const EventTable = ({ eventStatusUpdates }) => {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const navigate = useNavigate();
 
-  const fetchEvents = async () => {
+  const handleViewDetails = (eventId) => {
+    navigate(`/admin/manage-events/${eventId}`);
+  };
+
+  // Add this function to fetch events from multiple endpoints
+  const fetchAllEvents = async () => {
     try {
-      const res = await adminAxios.get('/events/event-management');
-      if (res.data && res.data.message) {
-        setEvents(res.data.message);
-      }
+      setLoading(true);
+      
+      // Fetch events from all endpoints
+      const [pendingRes, approvedRes, rejectedRes] = await Promise.all([
+        adminAxios.get('/events/event-management'),
+        adminAxios.get('/events/all-Approved-Events'),
+        adminAxios.get('/events/all-Rejected-Events')
+      ]);
+
+      // Combine all events
+      const allEvents = [
+        ...(pendingRes.data.message || []),
+        ...(approvedRes.data.message || []),
+        ...(rejectedRes.data.message || [])
+      ];
+
+      setEvents(allEvents);
     } catch (err) {
       console.error("Failed to fetch events", err);
+      // Fallback to just pending events if other endpoints fail
+      try {
+        const pendingRes = await adminAxios.get('/events/event-management');
+        setEvents(pendingRes.data.message || []);
+      } catch (fallbackErr) {
+        console.error("Failed to fetch pending events", fallbackErr);
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  // Update the useEffect to use fetchAllEvents
   useEffect(() => {
-    fetchEvents();
+    fetchAllEvents();
   }, []);
 
   const getStatus = (eventId, currentStatus) => {
@@ -144,7 +169,7 @@ const EventTable = ({ eventStatusUpdates }) => {
                   <td className="px-6 py-4">
                     <button
                       className="flex items-center bg-gradient-to-r from-pink-600 to-purple-700 hover:from-pink-700 hover:to-purple-800 text-white font-medium py-2 px-4 rounded-lg transition-all shadow-lg shadow-pink-500/10"
-                      onClick={() => navigate(`/events/${event._id}`)}
+                      onClick={() => handleViewDetails(event._id)}
                     >
                       <FiEye className="mr-1.5" />
                       Details

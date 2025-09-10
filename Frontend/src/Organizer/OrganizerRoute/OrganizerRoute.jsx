@@ -7,11 +7,30 @@ import ErrorBoundary from './ErrorBoundary';
 import EventDetails from '../CreateEvent/EventDetails';
 import Registration from '../Registrations/Registration';
 import RegistrationDetails from '../Registrations/RegistrationDetails';
+import { useAuth } from '../../context/AuthContext';
+import Banned from '../../pages/Banned';
+import VerifyAccount from '../../pages/VerifyAccount';
 
 const RequireOrganizerAuth = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const isAuthenticated = user && user.role === 'organizer';
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  const { user, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (user.isBanned) {
+    return <Navigate to="/banned" replace />;
+  }
+  
+  if (!user.isVerified) {
+    return <Navigate to="/verify-account" replace />;
+  }
+  
+  if (user.role !== 'organizer') {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  
+  return children;
 };
 
 const OrganizerRoutes = () => {
@@ -77,6 +96,8 @@ const OrganizerRoutes = () => {
           </RequireOrganizerAuth>
         }
       />
+      <Route path="/banned" element={<Banned />} />
+      <Route path="/verify-account" element={<VerifyAccount />} />
     </Routes>
   );
 };

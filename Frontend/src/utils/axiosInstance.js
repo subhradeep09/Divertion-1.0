@@ -8,7 +8,7 @@ export const setAccessToken = (token) => {
 
 const axiosInstance = axios.create({
   baseURL: `${import.meta.env.VITE_REACT_APP_API_URL}/auth`,
-  withCredentials: true, // ✅ Required for refreshToken via cookies
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((config) => {
@@ -25,6 +25,27 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    
+    // Handle banned user error (403)
+    if (error.response?.status === 403 && 
+        error.response?.data?.message?.includes("banned")) {
+      console.error("Account banned, redirecting to login");
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      window.location.href = "/banned";
+      return Promise.reject(error);
+    }
+    
+    // Handle unverified user error (403)
+    if (error.response?.status === 403 && 
+        error.response?.data?.message?.includes("verify")) {
+      console.error("Account not verified, redirecting to verification");
+      window.location.href = "/verify-account";
+      return Promise.reject(error);
+    }
+    
+    // Handle token refresh for 401 errors
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -39,6 +60,7 @@ axiosInstance.interceptors.response.use(
 
         if (newAccessToken) {
           setAccessToken(newAccessToken);
+          localStorage.setItem('accessToken', newAccessToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         }
 
@@ -49,7 +71,10 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (err) {
         console.error("Token refresh failed:", err);
-        window.location.href = "/login"; // Optional: force logout
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = "/login";
         return Promise.reject(err);
       }
     }
