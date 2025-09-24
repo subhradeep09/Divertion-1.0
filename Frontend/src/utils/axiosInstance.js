@@ -26,6 +26,18 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
+    // Handle session timeout errors
+    if (error.response?.status === 401 && error.response?.data?.message?.includes("Unauthorized")) {
+      console.error("Session expired, redirecting to login");
+      // Clear local storage and redirect
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('loginTime');
+      window.location.href = "/login?message=Session expired. Please login again.";
+      return Promise.reject(error);
+    }
+    
     // Handle banned user error (403)
     if (error.response?.status === 403 && 
         error.response?.data?.message?.includes("banned")) {
@@ -33,6 +45,7 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem('user');
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('loginTime');
       window.location.href = "/banned";
       return Promise.reject(error);
     }
@@ -74,7 +87,8 @@ axiosInstance.interceptors.response.use(
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = "/login";
+        localStorage.removeItem('loginTime');
+        window.location.href = "/login?message=Session expired. Please login again.";
         return Promise.reject(err);
       }
     }
